@@ -3,3 +3,6 @@ venv/
 
 # Ignore __pycache__ folders
 **/__pycache__/
+
+# Ignore local database
+db.sqlite3
