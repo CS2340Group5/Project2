@@ -16,9 +16,13 @@ class CustomErrorList(ErrorList):
         return mark_safe(''.join([f'<div class="alert alert-danger" role="alert">{e}</div>' for e in self]))
 
 class GenericUserCreationForm(UserCreationForm):
+    class Meta(UserCreationForm.Meta):
+        model = GenericUser
+        fields = UserCreationForm.Meta.fields + ('role', 'education', 'experience', 'headline')
+
     ROLE_CHOICES = [
-        ('applicant', 'Applicant'),
-        ('employer', 'Employer')
+        ("APPLICANT", "Applicant"),
+        ('RECRUITER', 'Recruiter')
     ]
     
     role = forms.ChoiceField(
