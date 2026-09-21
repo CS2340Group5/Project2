@@ -15,6 +15,7 @@ class GenericUser(AbstractUser):
     class Role(models.TextChoices):
         APPLICANT = "APPLICANT", "Applicant"
         RECRUITER = "RECRUITER", "Recruiter"
+        ADMIN = "ADMIN", "Admin"
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
     # String for the different roles available to a user
@@ -44,6 +45,6 @@ class SocialLink(models.Model):
                              on_delete=models.CASCADE,
                              related_name="sociallinks")
     url = models.URLField()
-    title = models.CharField(max_length=30, blank=True)
+    title = models.CharField(max_length=30)
     def __str__(self):
         return f"{self.title}"
