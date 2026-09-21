@@ -16,7 +16,7 @@ class JobPost(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=255)
     skills = models.ManyToManyField(Skill)
-    position = models.ForeignKey(Position, on_delete=models.CASCADE)
+    position = models.CharField(max_length=150)
     salary_min = models.IntegerField()
     is_remote = models.BooleanField(default=False)
     visa_sponsorship = models.BooleanField(default=False)

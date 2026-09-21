@@ -1,5 +1,9 @@
 from django.shortcuts import render
 from .models import JobPost, Position, Skill
+from .forms import JobPostForm, CustomErrorList
+from django.http import HttpResponseForbidden
+from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
 
 def index(request):
     postings = JobPost.objects.all()
@@ -32,3 +36,23 @@ def index(request):
     template_data['positions'] = Position.objects.all()
     template_data['skills'] = Skill.objects.all()
     return render(request, 'posts/index.html', {'template_data': template_data})
+
+@login_required
+def postjobs(request):
+    if request.user.role != 'RECRUITER':
+        return HttpResponseForbidden("Only recruiters can post jobs.")
+
+    template_data = {'title': 'Post a Job'}
+
+    if request.method == 'GET':
+        template_data['form'] = JobPostForm()
+        return render(request, 'posts/postjob.html', {'template_data': template_data})
+
+    elif request.method == 'POST':
+        form = JobPostForm(request.POST, error_class=CustomErrorList)
+        if form.is_valid():
+            form.save()
+            return redirect('home.index')
+        else:
+            template_data['form'] = form
+            return render(request, 'posts/postjob.html', {'template_data': template_data})
