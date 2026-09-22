@@ -57,3 +57,19 @@ class SocialLinkForm(forms.ModelForm):
         super(SocialLinkForm, self).__init__(*args, **kwargs)
         for field in self.fields.values():
             field.widget.attrs.update({'class': 'form-control'})
+
+class PrivacyForm(forms.ModelForm):
+    class Meta:
+        model = GenericUser
+        fields = ('is_public', 'show_education', 'show_experience', 'show_links')
+        labels = {
+            'is_public': 'Profile visible to recruiters',
+            'show_education': 'Show education',
+            'show_experience': 'Show work experience',
+            'show_links': 'Show links',
+        }
+
+    def __init__(self, *args, **kwargs):
+        super(PrivacyForm, self).__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.widget.attrs.update({'class': 'form-check-input'})

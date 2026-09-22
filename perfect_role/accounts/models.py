@@ -31,6 +31,12 @@ class GenericUser(AbstractUser):
 
     headline = models.TextField(max_length=150, blank=True)
     skills = models.CharField(max_length=255, blank=True)
+
+    # Privacy options: what recruiters can see on this profile
+    is_public = models.BooleanField(default=True)
+    show_education = models.BooleanField(default=True)
+    show_experience = models.BooleanField(default=True)
+    show_links = models.BooleanField(default=True)
     def __str__(self):
         return f"{super().__str__()} - Role: {self.role}"
 

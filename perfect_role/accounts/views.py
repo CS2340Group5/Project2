@@ -1,5 +1,5 @@
-from .forms import GenericUserCreationForm, CustomErrorList, ProfileForm, SocialLinkForm
-from .models import SocialLink
+from .forms import GenericUserCreationForm, CustomErrorList, ProfileForm, SocialLinkForm, PrivacyForm
+from .models import SocialLink, GenericUser
 from django.shortcuts import get_object_or_404
 from django.shortcuts import render
 from django.shortcuts import redirect
@@ -44,11 +44,16 @@ def logout(request):
     return redirect('home.index')
 
 @login_required
-def profile(request):
+def profile(request, id=None):
+    if id is None:
+        profile_user = request.user
+    else:
+        profile_user = get_object_or_404(GenericUser, id=id)
     template_data = {}
     template_data['title'] = 'Profile'
-    template_data['profile_user'] = request.user
-    template_data['links'] = request.user.sociallinks.all()
+    template_data['profile_user'] = profile_user
+    template_data['links'] = profile_user.sociallinks.all()
+    template_data['is_owner'] = profile_user == request.user
     return render(request, 'accounts/profile.html', {'template_data': template_data})
 
 @login_required
@@ -86,3 +91,16 @@ def delete_link(request, id):
     link = get_object_or_404(SocialLink, id=id, user=request.user)
     link.delete()
     return redirect('accounts.edit_profile')
+
+@login_required
+def privacy(request):
+    template_data = {}
+    template_data['title'] = 'Privacy Settings'
+    if request.method == 'GET':
+        template_data['form'] = PrivacyForm(instance=request.user)
+        return render(request, 'accounts/privacy.html', {'template_data': template_data})
+    elif request.method == 'POST':
+        form = PrivacyForm(request.POST, instance=request.user)
+        if form.is_valid():
+            form.save()
+        return redirect('accounts.profile')

@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="p-3 mt-4">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-md-8">
+        <div class="card shadow p-3 mb-4 rounded">
+          <div class="card-body">
+            <h2>Privacy Settings</h2>
+            <hr />
+            <form method="POST">
+              {% csrf_token %}
+              {% for field in template_data.form %}
+              <div class="form-check mb-2">
+                {{ field }}
+                <label class="form-check-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+              </div>
+              {% endfor %}
+              <button type="submit" class="btn bg-dark text-white mt-3">Save</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}

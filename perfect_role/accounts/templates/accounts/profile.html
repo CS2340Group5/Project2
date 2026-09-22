@@ -7,17 +7,30 @@
         <div class="card shadow p-3 mb-4 rounded">
           <div class="card-body">
             <h2>{{ template_data.profile_user.username }}</h2>
+            {% if template_data.is_owner or template_data.profile_user.is_public %}
             <p class="text-muted">{{ template_data.profile_user.headline }}</p>
             <hr />
             <p><b>Skills:</b> {{ template_data.profile_user.skills }}</p>
+            {% if template_data.is_owner or template_data.profile_user.show_education %}
             <p><b>Education:</b> {{ template_data.profile_user.education }}</p>
+            {% endif %}
+            {% if template_data.is_owner or template_data.profile_user.show_experience %}
             <p><b>Work experience:</b> {{ template_data.profile_user.experience }}</p>
+            {% endif %}
+            {% if template_data.is_owner or template_data.profile_user.show_links %}
             <p><b>Links:</b>
               {% for link in template_data.links %}
               <a href="{{ link.url }}" target="_blank">{{ link.title }}</a>{% if not forloop.last %}, {% endif %}
               {% endfor %}
             </p>
+            {% endif %}
+            {% else %}
+            <p class="text-muted">This profile is private.</p>
+            {% endif %}
+            {% if template_data.is_owner %}
             <a class="btn bg-dark text-white" href="{% url 'accounts.edit_profile' %}">Edit Profile</a>
+            <a class="btn btn-outline-dark" href="{% url 'accounts.privacy' %}">Privacy Settings</a>
+            {% endif %}
           </div>
         </div>
       </div>
