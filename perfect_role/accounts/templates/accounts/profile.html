@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="p-3 mt-4">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-md-8">
+        <div class="card shadow p-3 mb-4 rounded">
+          <div class="card-body">
+            <h2>{{ template_data.profile_user.username }}</h2>
+            <p class="text-muted">{{ template_data.profile_user.headline }}</p>
+            <hr />
+            <p><b>Skills:</b> {{ template_data.profile_user.skills }}</p>
+            <p><b>Education:</b> {{ template_data.profile_user.education }}</p>
+            <p><b>Work experience:</b> {{ template_data.profile_user.experience }}</p>
+            <p><b>Links:</b>
+              {% for link in template_data.links %}
+              <a href="{{ link.url }}" target="_blank">{{ link.title }}</a>{% if not forloop.last %}, {% endif %}
+              {% endfor %}
+            </p>
+            <a class="btn bg-dark text-white" href="{% url 'accounts.edit_profile' %}">Edit Profile</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}

@@ -1,4 +1,6 @@
-from .forms import GenericUserCreationForm, CustomErrorList
+from .forms import GenericUserCreationForm, CustomErrorList, ProfileForm, SocialLinkForm
+from .models import SocialLink
+from django.shortcuts import get_object_or_404
 from django.shortcuts import render
 from django.shortcuts import redirect
 from django.contrib.auth import login as auth_login, authenticate, logout as auth_logout
@@ -40,3 +42,47 @@ def login(request):
 def logout(request):
     auth_logout(request)
     return redirect('home.index')
+
+@login_required
+def profile(request):
+    template_data = {}
+    template_data['title'] = 'Profile'
+    template_data['profile_user'] = request.user
+    template_data['links'] = request.user.sociallinks.all()
+    return render(request, 'accounts/profile.html', {'template_data': template_data})
+
+@login_required
+def edit_profile(request):
+    template_data = {}
+    template_data['title'] = 'Edit Profile'
+    if request.method == 'GET':
+        template_data['form'] = ProfileForm(instance=request.user)
+        template_data['link_form'] = SocialLinkForm()
+        template_data['links'] = request.user.sociallinks.all()
+        return render(request, 'accounts/edit_profile.html', {'template_data': template_data})
+    elif request.method == 'POST':
+        form = ProfileForm(request.POST, instance=request.user, error_class=CustomErrorList)
+        if form.is_valid():
+            form.save()
+            return redirect('accounts.profile')
+        else:
+            template_data['form'] = form
+            template_data['link_form'] = SocialLinkForm()
+            template_data['links'] = request.user.sociallinks.all()
+            return render(request, 'accounts/edit_profile.html', {'template_data': template_data})
+
+@login_required
+def add_link(request):
+    if request.method == 'POST':
+        form = SocialLinkForm(request.POST)
+        if form.is_valid():
+            link = form.save(commit=False)
+            link.user = request.user
+            link.save()
+    return redirect('accounts.edit_profile')
+
+@login_required
+def delete_link(request, id):
+    link = get_object_or_404(SocialLink, id=id, user=request.user)
+    link.delete()
+    return redirect('accounts.edit_profile')

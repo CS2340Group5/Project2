@@ -36,3 +36,24 @@ class GenericUserCreationForm(UserCreationForm):
         for fieldname in ['username', 'password1', 'password2']:
             self.fields[fieldname].help_text = None
             self.fields[fieldname].widget.attrs.update({'class': 'form-control'})
+
+class ProfileForm(forms.ModelForm):
+    class Meta:
+        model = GenericUser
+        fields = ('headline', 'skills', 'education', 'experience')
+        labels = {'skills': 'Skills (comma separated)', 'experience': 'Work experience'}
+
+    def __init__(self, *args, **kwargs):
+        super(ProfileForm, self).__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.widget.attrs.update({'class': 'form-control'})
+
+class SocialLinkForm(forms.ModelForm):
+    class Meta:
+        model = SocialLink
+        fields = ('title', 'url')
+
+    def __init__(self, *args, **kwargs):
+        super(SocialLinkForm, self).__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.widget.attrs.update({'class': 'form-control'})

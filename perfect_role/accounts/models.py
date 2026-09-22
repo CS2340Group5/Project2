@@ -30,6 +30,7 @@ class GenericUser(AbstractUser):
     experience = models.TextField(max_length=500, blank=True)
 
     headline = models.TextField(max_length=150, blank=True)
+    skills = models.CharField(max_length=255, blank=True)
     def __str__(self):
         return f"{super().__str__()} - Role: {self.role}"
 
