@@ -1,12 +1,8 @@
+from django import forms
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 from django.forms.utils import ErrorList
 from django.utils.safestring import mark_safe
 from .models import *
-
-class GenericUserCreationForm(UserCreationForm):
-    class Meta(UserCreationForm.Meta):
-        model = GenericUser
-        fields = UserCreationForm.Meta.fields + ('role', 'education', 'experience', 'headline')
 
 class GenericUserChangeForm(UserChangeForm):
     class Meta:
@@ -19,14 +15,24 @@ class CustomErrorList(ErrorList):
             return ''
         return mark_safe(''.join([f'<div class="alert alert-danger" role="alert">{e}</div>' for e in self]))
 
-class CustomUserCreationForm(UserCreationForm):
-    def __init__(self, *args, **kwargs):
-        super(CustomUserCreationForm, self).__init__(*args, **kwargs)
-        for fieldname in ['username', 'role', 'password1', 'password2']:
-            if fieldname in self.fields:
-                self.fields[fieldname].help_text = None
-                self.fields[fieldname].widget.attrs.update({'class': 'form-control'})
-
+class GenericUserCreationForm(UserCreationForm):
     class Meta(UserCreationForm.Meta):
         model = GenericUser
-        fields = ('username', 'role')
+        fields = UserCreationForm.Meta.fields + ('role', 'education', 'experience', 'headline')
+
+    ROLE_CHOICES = [
+        ("APPLICANT", "Applicant"),
+        ('RECRUITER', 'Recruiter')
+    ]
+    
+    role = forms.ChoiceField(
+        choices=ROLE_CHOICES, 
+        widget=forms.RadioSelect, 
+        label="I am an:"
+    )
+    
+    def __init__(self, *args, **kwargs):
+        super(GenericUserCreationForm, self).__init__(*args, **kwargs)
+        for fieldname in ['username', 'password1', 'password2']:
+            self.fields[fieldname].help_text = None
+            self.fields[fieldname].widget.attrs.update({'class': 'form-control'})
