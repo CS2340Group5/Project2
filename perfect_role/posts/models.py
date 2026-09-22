@@ -6,12 +6,6 @@ class Skill(models.Model):
     def __str__(self):
         return self.name
 
-class Position(models.Model):
-    name = models.CharField(max_length=255)
-
-    def __str__(self):
-        return self.name
-
 class JobPost(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=255)
@@ -22,6 +16,10 @@ class JobPost(models.Model):
     visa_sponsorship = models.BooleanField(default=False)
     location = models.CharField(max_length=5)
 
+    def skills_string(self):
+        sl = self.skills.all()
+        return ", ".join([str(s) for s in sl])
+    
 
     def __str__(self):
         return str(self.id) + ' - ' + self.name

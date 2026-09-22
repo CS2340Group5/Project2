@@ -39,6 +39,12 @@
                             <input type="number" class="form-control" name="salary" placeholder="Minimum Salary">
                           </div>
                         </div>
+                        <div class="col-4">
+                          <div class="input-group">      
+                            <div class="input-group-text" style="background-color: #75c1ff"><i class="fa-solid fa-briefcase"></i></div>
+                            <input class="form-control" name="position" placeholder="Position">
+                          </div>
+                        </div>
                         <div class="col-auto">
                           <div class="form-check">
                             <input class="form-check-input" type="checkbox" name="visa" value="true" id="visa">
@@ -67,24 +73,34 @@
                                 </div>
                             </div>
                         </div>
-                      <button class="btn bg-dark text-white" type="button" data-bs-toggle="collapse" data-bs-target="#positionsPanel">Position</button><br /><br />
-                        <div class="collapse mt-0" id="positionsPanel">
-                            <div class="card shadow p-3 mb-4 rounded" style="width: 800px">
-                                <div class="card-body">
-                                    <b class="text-start">Positions</b>
-                                    {% for positions in template_data.positions %}
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="positions" value="{{ positions.name }}" id="positions{{ positions.id }}">
-                                        {{ positions.name }}
-                                    </div>
-                                    {% endfor %}
-                                </div>
-                            </div>
-                        </div>
                 </div>
               </div>
             </div>
           </form>
+          <div class="row: mt-4"> 
+            {% for post in template_data.postings %}
+            <div class="col-md-6 col-lg-3">
+              <div class="card shadow p-3 h-100 rounded">
+                <div class="card-body">
+                  <div class="card-title">
+                    <h5> {{ post.name }} </h5>
+                    <b>Position: </b>{{ post.position }}<br />
+                    <b>Salary: </b>${{post.salary_min}}.00<br />
+                    <b>Skills: </b>{{ post.skills_string }}<br />
+                    <b>Location: </b>{{ post.location }}<br />
+                    {% if post.visa %}
+                      <b> Has Visa Sponsorship</b><br />
+                    {% endif %}
+                    {% if post.is_remote %}
+                      <b> Is Remote </b>
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+
+          </div>
         </p>
       </div>
     </div>

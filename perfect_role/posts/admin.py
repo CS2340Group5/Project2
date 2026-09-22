@@ -1,6 +1,5 @@
 from django.contrib import admin
-from .models import Skill, Position, JobPost
+from .models import Skill, JobPost
 
 admin.site.register(Skill)
-admin.site.register(Position)
 admin.site.register(JobPost)

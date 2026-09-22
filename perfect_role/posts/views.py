@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from .models import JobPost, Position, Skill
+from .models import JobPost, Skill
 from .forms import JobPostForm, CustomErrorList
 from django.http import HttpResponseForbidden
 from django.shortcuts import render, redirect
@@ -21,7 +21,7 @@ def index(request):
     if skills:
         postings = postings.filter(skills__name__in=skills).distinct()
     if position:
-        postings = postings.filter(position__name=position)
+        postings = postings.filter(position__icontains=position)
     if salary_min:
         postings = postings.filter(salary_min__gte=salary_min)
     if remote:
@@ -31,9 +31,8 @@ def index(request):
     if location:
         postings = postings.filter(location=location)
 
-    template_data = {}
+    template_data = {'title': 'Job Search'}
     template_data['postings'] = postings
-    template_data['positions'] = Position.objects.all()
     template_data['skills'] = Skill.objects.all()
     return render(request, 'posts/index.html', {'template_data': template_data})
 
