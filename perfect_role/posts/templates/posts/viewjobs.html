@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="p-3">
+  <div class="container">
+    <div class="row mt-3">
+      <div class="col mx-auto mb-3">
+        <h2>My Job Postings</h2>
+        <hr />
+        
+        {% for job in template_data %}
+        <div class="card mb-4">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <span>Job #{{ job.id }} - {{ job.name }}</span>
+            <a href="{% url 'posts.editjob' id=job.id %}" class="btn btn-sm btn-outline-primary">Edit</a>
+          </div>
+          <div class="card-body">
+            <b>Position:</b> {{ job.position }}<br />
+            <b>Location:</b> {{ job.location }}<br />
+            <b>Minimum Salary:</b> ${{ job.salary_min }}<br />
+            <b>Remote:</b> {% if job.is_remote %}Yes{% else %}No{% endif %}<br />
+            <b>Visa Sponsorship:</b> {% if job.visa_sponsorship %}Yes{% else %}No{% endif %}<br />
+            
+            <h6 class="mt-3">Required Skills:</h6>
+            <ul>
+              {% for skill in job.skills.all %}
+                <li>{{ skill.name }}</li>
+              {% empty %}
+                <li>No skills specified</li>
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
+        {% empty %}
+        <div class="alert alert-info">You have not posted any jobs yet.</div>
+        {% endfor %}
+        
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}
