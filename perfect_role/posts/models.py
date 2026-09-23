@@ -1,4 +1,5 @@
 from django.db import models
+from django.conf import settings
 
 class Skill(models.Model):
     name = models.CharField(max_length=255)
@@ -15,6 +16,7 @@ class JobPost(models.Model):
     is_remote = models.BooleanField(default=False)
     visa_sponsorship = models.BooleanField(default=False)
     location = models.CharField(max_length=5)
+    recruiter = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
 
     def skills_string(self):
         sl = self.skills.all()
