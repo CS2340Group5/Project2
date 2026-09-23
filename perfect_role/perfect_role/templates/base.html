@@ -25,6 +25,7 @@
             <a class="nav-link" href="{% url 'accounts.profile' %}">Profile</a>
             <a class="nav-link" href="{% url 'accounts.logout' %}">Logout ({{ user.username }})</a>
             {% if user.role == "RECRUITER" %}
+            <a class="nav-link" href="{% url 'posts.viewjobs' %}">My Postings</a>
             <a class="nav-link" href="{% url 'posts.postjobs' %}">Post Jobs</a>
             {% endif %}
             {% else %}

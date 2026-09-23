@@ -1,8 +1,8 @@
 from django.shortcuts import render
-from .models import JobPost, Position, Skill
+from .models import JobPost, Skill
 from .forms import JobPostForm, CustomErrorList
 from django.http import HttpResponseForbidden
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 
 def index(request):
@@ -21,7 +21,7 @@ def index(request):
     if skills:
         postings = postings.filter(skills__name__in=skills).distinct()
     if position:
-        postings = postings.filter(position__name=position)
+        postings = postings.filter(position__icontains=position)
     if salary_min:
         postings = postings.filter(salary_min__gte=salary_min)
     if remote:
@@ -31,9 +31,8 @@ def index(request):
     if location:
         postings = postings.filter(location=location)
 
-    template_data = {}
+    template_data = {'title': 'Job Search'}
     template_data['postings'] = postings
-    template_data['positions'] = Position.objects.all()
     template_data['skills'] = Skill.objects.all()
     return render(request, 'posts/index.html', {'template_data': template_data})
 
@@ -51,8 +50,39 @@ def postjobs(request):
     elif request.method == 'POST':
         form = JobPostForm(request.POST, error_class=CustomErrorList)
         if form.is_valid():
-            form.save()
+            job_post = form.save(commit=False)
+            job_post.recruiter = request.user
+            job_post.save()
+            form.save_m2m()
+            
             return redirect('home.index')
         else:
             template_data['form'] = form
             return render(request, 'posts/postjob.html', {'template_data': template_data})
+
+@login_required
+def viewjobs(request):
+    template_data = JobPost.objects.filter(recruiter=request.user)
+    
+    return render(request, 'posts/viewjobs.html', {'template_data': template_data})
+
+@login_required
+def editjob(request, id):
+    post = JobPost.objects.get(pk=id)
+    if request.user != post.recruiter:
+        return redirect('home.index')
+    template_data = {}
+    template_data['title'] = "Edit Job"
+    template_data['id'] = id
+    
+    if request.method == 'GET':
+        template_data['form'] = JobPostForm(instance=post)
+        return render(request, 'posts/editjob.html', {'template_data': template_data})
+    elif request.method == 'POST':
+        form = JobPostForm(request.POST, error_class=CustomErrorList, instance=post)
+        if form.is_valid():
+            form.save()
+            return redirect('posts.viewjobs')
+        else:
+            template_data['form'] = form
+            return render(request, 'posts/editjob.html', {'template_data': template_data})
