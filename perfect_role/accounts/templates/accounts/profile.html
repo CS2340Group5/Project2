@@ -10,7 +10,11 @@
             {% if template_data.is_owner or template_data.profile_user.is_public %}
             <p class="text-muted">{{ template_data.profile_user.headline }}</p>
             <hr />
-            <p><b>Skills:</b> {{ template_data.profile_user.skills }}</p>
+            <p><b>Skills:</b>
+              {% for skill in template_data.profile_user.skills.all %}
+              <span class="badge bg-secondary">{{ skill.name }}</span>
+              {% endfor %}
+            </p>
             {% if template_data.is_owner or template_data.profile_user.show_education %}
             <p><b>Education:</b> {{ template_data.profile_user.education }}</p>
             {% endif %}

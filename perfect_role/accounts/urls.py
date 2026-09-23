@@ -8,6 +8,8 @@ urlpatterns = [
     path('profile/<uuid:id>/', views.profile, name='accounts.profile_view'),
     path('profile/privacy/', views.privacy, name='accounts.privacy'),
     path('profile/edit/', views.edit_profile, name='accounts.edit_profile'),
+    path('profile/skills/add/', views.add_skill, name='accounts.add_skill'),
+    path('profile/skills/<int:id>/remove/', views.remove_skill, name='accounts.remove_skill'),
     path('profile/links/add/', views.add_link, name='accounts.add_link'),
     path('profile/links/<int:id>/delete/', views.delete_link, name='accounts.delete_link'),
 ]

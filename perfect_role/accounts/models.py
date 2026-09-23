@@ -30,7 +30,7 @@ class GenericUser(AbstractUser):
     experience = models.TextField(max_length=500, blank=True)
 
     headline = models.TextField(max_length=150, blank=True)
-    skills = models.CharField(max_length=255, blank=True)
+    skills = models.ManyToManyField('posts.Skill', blank=True)
 
     # Privacy options: what recruiters can see on this profile
     is_public = models.BooleanField(default=True)

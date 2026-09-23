@@ -15,7 +15,46 @@
             </form>
           </div>
         </div>
-        <div class="card shadow p-3 mb-4 rounded">
+        <div class="card shadow p-3 mb-4 rounded" id="skills">
+          <div class="card-body">
+            <h4>Skills</h4>
+            <hr />
+            <p>
+              {% for skill in user.skills.all %}
+              <span class="badge bg-secondary fs-6 me-1">{{ skill.name }}
+                <a class="text-white text-decoration-none" href="{% url 'accounts.remove_skill' skill.id %}">&times;</a>
+              </span>
+              {% endfor %}
+            </p>
+            <form method="POST" action="{% url 'accounts.add_skill' %}" class="position-relative">
+              {% csrf_token %}
+              <div class="d-flex gap-2">
+                <input class="form-control" name="name" id="skill-input" placeholder="Type a skill" autocomplete="off" required>
+                <button type="submit" class="btn bg-dark text-white">Add</button>
+              </div>
+              <div class="list-group position-absolute w-100 shadow" id="skill-suggestions" style="z-index: 10"></div>
+            </form>
+            <script>
+              const skills = [{% for skill in template_data.all_skills %}"{{ skill.name|escapejs }}",{% endfor %}];
+              const input = document.getElementById('skill-input');
+              const box = document.getElementById('skill-suggestions');
+              input.addEventListener('input', function () {
+                const text = input.value.trim().toLowerCase();
+                box.innerHTML = '';
+                if (!text) return;
+                skills.filter(s => s.toLowerCase().includes(text)).slice(0, 8).forEach(s => {
+                  const item = document.createElement('button');
+                  item.type = 'button';
+                  item.className = 'list-group-item list-group-item-action';
+                  item.textContent = s;
+                  item.onclick = () => { input.value = s; input.form.submit(); };
+                  box.appendChild(item);
+                });
+              });
+            </script>
+          </div>
+        </div>
+        <div class="card shadow p-3 mb-4 rounded" id="links">
           <div class="card-body">
             <h4>Links</h4>
             <hr />

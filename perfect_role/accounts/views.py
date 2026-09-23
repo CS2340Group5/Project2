@@ -1,6 +1,8 @@
 from .forms import GenericUserCreationForm, CustomErrorList, ProfileForm, SocialLinkForm, PrivacyForm
 from .models import SocialLink, GenericUser
+from posts.models import Skill
 from django.shortcuts import get_object_or_404
+from django.urls import reverse
 from django.shortcuts import render
 from django.shortcuts import redirect
 from django.contrib.auth import login as auth_login, authenticate, logout as auth_logout
@@ -64,6 +66,7 @@ def edit_profile(request):
         template_data['form'] = ProfileForm(instance=request.user)
         template_data['link_form'] = SocialLinkForm()
         template_data['links'] = request.user.sociallinks.all()
+        template_data['all_skills'] = Skill.objects.all()
         return render(request, 'accounts/edit_profile.html', {'template_data': template_data})
     elif request.method == 'POST':
         form = ProfileForm(request.POST, instance=request.user, error_class=CustomErrorList)
@@ -74,6 +77,7 @@ def edit_profile(request):
             template_data['form'] = form
             template_data['link_form'] = SocialLinkForm()
             template_data['links'] = request.user.sociallinks.all()
+            template_data['all_skills'] = Skill.objects.all()
             return render(request, 'accounts/edit_profile.html', {'template_data': template_data})
 
 @login_required
@@ -84,13 +88,13 @@ def add_link(request):
             link = form.save(commit=False)
             link.user = request.user
             link.save()
-    return redirect('accounts.edit_profile')
+    return redirect(reverse('accounts.edit_profile') + '#links')
 
 @login_required
 def delete_link(request, id):
     link = get_object_or_404(SocialLink, id=id, user=request.user)
     link.delete()
-    return redirect('accounts.edit_profile')
+    return redirect(reverse('accounts.edit_profile') + '#links')
 
 @login_required
 def privacy(request):
@@ -104,3 +108,19 @@ def privacy(request):
         if form.is_valid():
             form.save()
         return redirect('accounts.profile')
+
+@login_required
+def add_skill(request):
+    name = request.POST.get('name', '').strip()
+    if name:
+        skill = Skill.objects.filter(name__iexact=name).first()
+        if skill is None:
+            skill = Skill.objects.create(name=name)
+        request.user.skills.add(skill)
+    return redirect(reverse('accounts.edit_profile') + '#skills')
+
+@login_required
+def remove_skill(request, id):
+    skill = get_object_or_404(Skill, id=id)
+    request.user.skills.remove(skill)
+    return redirect(reverse('accounts.edit_profile') + '#skills')
