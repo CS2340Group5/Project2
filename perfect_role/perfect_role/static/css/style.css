@@ -1,3 +1,35 @@
-body {
-  background-color: #f6f7f9;
+.bg-index {
+  background: linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.45)), url("/static/img/background.jpg") no-repeat center;
+  background-size: cover;
+}
+
+.navbar a.nav-link {
+  color: #FFFEF6 !important;
+}
+
+.bg-dark {
+  background-color: #2E2E2E !important;
+}
+
+.pr-footer {
+  background-color: #202020;
+}
+
+.pr-footer p {
+  color: #7F7F7F;
+  font-size: 13px;
+}
+
+.pr-footer a {
+  color: #7F7F7F;
+  text-decoration: none;
+}
+
+.pr-footer a:hover {
+  color: #6ab43e;
+}
+
+.pr-footer-bottom span {
+  font-size: 13px;
+  line-height: 38px;
 }
