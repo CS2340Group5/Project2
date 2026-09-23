@@ -18,7 +18,7 @@ class JobPost(models.Model):
     location = models.CharField(max_length=5)
     recruiter = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
 
-    def skills_string(self):
+    def skills_toString(self):
         sl = self.skills.all()
         return ", ".join([str(s) for s in sl])
     
