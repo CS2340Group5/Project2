@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="p-3 mt-4">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-md-8">
+        <div class="card shadow p-3 mb-4 rounded">
+          <div class="card-body">
+            <h2>Export Data</h2>
+            <hr />
+            <p>Download platform data as CSV for reporting.</p>
+            <p>
+              <a class="btn bg-dark text-white" href="{% url 'exports.users' %}">Users ({{ template_data.user_count }})</a>
+              <a class="btn bg-dark text-white" href="{% url 'exports.jobs' %}">Job Posts ({{ template_data.job_count }})</a>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}

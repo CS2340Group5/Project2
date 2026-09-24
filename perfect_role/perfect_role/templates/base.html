@@ -22,10 +22,15 @@
         <div class="collapse navbar-collapse" id="navbarNav">
           <div class="navbar-nav ms-auto">
             {% if user.is_authenticated %}
+            {% if user.role == "APPLICANT" %}
             <a class="nav-link" href="{% url 'accounts.profile' %}">Profile</a>
+            {% endif %}
             <a class="nav-link" href="{% url 'accounts.logout' %}">Logout ({{ user.username }})</a>
             {% if user.role == "APPLICANT" %}
             <a class="nav-link" href="{% url 'posts.recommended' %}">Recommended</a>
+            {% endif %}
+            {% if user.role == "ADMIN" or user.is_superuser %}
+            <a class="nav-link" href="{% url 'exports.index' %}">Export Data</a>
             {% endif %}
             {% if user.role == "RECRUITER" %}
             <a class="nav-link" href="{% url 'posts.viewjobs' %}">My Postings</a>

@@ -18,7 +18,7 @@ class CustomErrorList(ErrorList):
 class GenericUserCreationForm(UserCreationForm):
     class Meta(UserCreationForm.Meta):
         model = GenericUser
-        fields = UserCreationForm.Meta.fields + ('role', 'education', 'experience', 'headline')
+        fields = UserCreationForm.Meta.fields + ('role',)
 
     ROLE_CHOICES = [
         ("APPLICANT", "Applicant"),
