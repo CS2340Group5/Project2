@@ -4,6 +4,7 @@ from .forms import JobPostForm, CustomErrorList
 from django.http import HttpResponseForbidden
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
+from django.db.models import Count
 
 def index(request):
     postings = JobPost.objects.all()
@@ -86,3 +87,13 @@ def editjob(request, id):
         else:
             template_data['form'] = form
             return render(request, 'posts/editjob.html', {'template_data': template_data})
+
+@login_required
+def recommended(request):
+    my_skills = request.user.skills.all()
+    postings = JobPost.objects.filter(skills__in=my_skills).annotate(
+        matches=Count('skills')).order_by('-matches')
+    template_data = {'title': 'Recommended Jobs'}
+    template_data['postings'] = postings
+    template_data['has_skills'] = my_skills.exists()
+    return render(request, 'posts/recommended.html', {'template_data': template_data})
