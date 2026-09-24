@@ -11,6 +11,13 @@
   background-color: #2E2E2E !important;
 }
 
+/*Formats header, body, and footer section spacing*/
+.wrapper {
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    min-height: 100dvh;
+}
+
 .pr-footer {
   background-color: #202020;
 }
