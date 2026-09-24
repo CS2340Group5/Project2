@@ -83,12 +83,21 @@
               <div class="card shadow p-3 h-100 rounded">
                 <div class="card-body">
                   <div class="card-title">
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'posts.bookmarktoggle' id=post.id %}" class="btn float-end" style="background-color: #FFFFFF">
+                          {% if post.id in template_data.bookmarks %}
+                            <i class="fa-solid fa-bookmark" style="color: #75c1ff"></i>
+                          {% else %} 
+                            <i class="fa-solid fa-bookmark"></i>
+                          {% endif %}
+                        </a>
+                    {% endif %}
                     <h5> {{ post.name }} </h5>
                     <b>Position: </b>{{ post.position }}<br />
                     <b>Salary: </b>${{post.salary_min}}.00<br />
                     <b>Skills: </b>{{ post.skills_toString }}<br />
                     <b>Location: </b>{{ post.location }}<br />
-                    {% if post.visa %}
+                    {% if post.visa_sponsorship %}
                       <b> Has Visa Sponsorship</b><br />
                     {% endif %}
                     {% if post.is_remote %}

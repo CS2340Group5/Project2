@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from .models import JobPost, Skill
+from .models import JobPost, Skill, Bookmark
 from .forms import JobPostForm, CustomErrorList
 from django.http import HttpResponseForbidden
 from django.shortcuts import render, redirect, get_object_or_404
@@ -32,10 +32,34 @@ def index(request):
     if location:
         postings = postings.filter(location=location)
 
-    template_data = {'title': 'Job Search'}
+    template_data = {}
+    template_data['bookmarks'] = []
+    if request.user.is_authenticated:
+        template_data['bookmarks'] = [bookmark.post.id for bookmark in Bookmark.objects.filter(user=request.user)]
+
     template_data['postings'] = postings
     template_data['skills'] = Skill.objects.all()
     return render(request, 'posts/index.html', {'template_data': template_data})
+
+@login_required
+def bookmarktoggle(request, id):
+    post = JobPost.objects.get(id=id)
+    bookmarkCheck = Bookmark.objects.filter(user=request.user, post=post)
+
+    if len(bookmarkCheck) == 0:
+        Bookmark.objects.create(user=request.user, post=post)
+    else:
+        bookmarkCheck.delete()
+
+    return redirect(request.META.get('HTTP_REFERER', 'posts.index'))
+
+@login_required
+def viewbookmarks(request):
+    bookmarks = Bookmark.objects.filter(user=request.user)
+    template_data = {}
+    template_data['bookmarks'] = [bookmark.post for bookmark in bookmarks]
+
+    return render(request, 'posts/bookmarks.html', {'template_data': template_data})
 
 @login_required
 def postjobs(request):

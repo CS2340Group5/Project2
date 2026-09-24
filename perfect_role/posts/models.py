@@ -25,3 +25,12 @@ class JobPost(models.Model):
 
     def __str__(self):
         return str(self.id) + ' - ' + self.name
+
+
+class Bookmark(models.Model):
+    id = models.AutoField(primary_key=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
+    post = models.ForeignKey(JobPost, on_delete=models.CASCADE, null = True)
+
+    def __str__(self):
+        return self.user.username + ' - '  + str(self.post.id)
