@@ -144,3 +144,24 @@ def recommended(request):
     template_data['postings'] = postings
     template_data['has_skills'] = my_skills.exists()
     return render(request, 'posts/recommended.html', {'template_data': template_data})
+
+@login_required
+def pipeline(request, id):
+    post = get_object_or_404(JobPost, pk=id)
+    if request.user != post.recruiter:
+        return redirect('home.index')
+    template_data = {'title': 'Applicant Pipeline'}
+    template_data['post'] = post
+    template_data['stages'] = Application.Status.choices
+    template_data['applications'] = Application.objects.filter(post=post)
+    return render(request, 'posts/pipeline.html', {'template_data': template_data})
+
+@login_required
+def move_application(request, id):
+    application = get_object_or_404(Application, pk=id)
+    if request.user != application.post.recruiter:
+        return redirect('home.index')
+    if request.method == 'POST' and request.POST.get('status') in Application.Status.values:
+        application.status = request.POST['status']
+        application.save()
+    return redirect('posts.pipeline', id=application.post.id)

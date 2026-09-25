@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="p-3">
+  <div class="container-fluid">
+    <div class="row mt-3">
+      <div class="col mx-auto mb-3">
+        <h2>Applicant Pipeline: {{ template_data.post.name }}</h2>
+        <hr />
+        <div class="row">
+          {% for value, label in template_data.stages %}
+          <div class="col">
+            <h5 class="text-center">{{ label }}</h5>
+            {% for application in template_data.applications %}
+            {% if application.status == value %}
+            <div class="card shadow mb-3">
+              <div class="card-body p-2">
+                <b>{{ application.user.username }}</b><br />
+                <small>{{ application.note }}</small><br />
+                <a class="btn btn-sm btn-outline-dark mt-2" href="{% url 'accounts.profile_view' application.user.id %}">View Profile</a>
+                <form method="POST" action="{% url 'posts.move_application' application.id %}" class="d-flex gap-1 mt-2">
+                  {% csrf_token %}
+                  <select class="form-select form-select-sm" name="status">
+                    {% for v, l in template_data.stages %}
+                    <option value="{{ v }}" {% if v == value %}selected{% endif %}>{{ l }}</option>
+                    {% endfor %}
+                  </select>
+                  <button type="submit" class="btn btn-sm bg-dark text-white">Move</button>
+                </form>
+              </div>
+            </div>
+            {% endif %}
+            {% endfor %}
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}

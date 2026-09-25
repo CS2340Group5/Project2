@@ -10,5 +10,7 @@ urlpatterns = [
     path('viewbookmarks/', views.viewbookmarks, name='posts.viewbookmarks'),
     path('bookmarktoggle/<int:id>', views.bookmarktoggle, name='posts.bookmarktoggle'),
     path('submitapplication/<int:id>', views.submitapplication, name='posts.submitapplication'),
-    path('applications/', views.applications, name='posts.applications')
+    path('applications/', views.applications, name='posts.applications'),
+    path('pipeline/<int:id>/', views.pipeline, name='posts.pipeline'),
+    path('application/<int:id>/move/', views.move_application, name='posts.move_application'),
 ]

@@ -11,7 +11,10 @@
         <div class="card mb-4">
           <div class="card-header d-flex justify-content-between align-items-center">
             <span>Job #{{ job.id }} - {{ job.name }}</span>
-            <a href="{% url 'posts.editjob' id=job.id %}" class="btn btn-sm btn-outline-primary">Edit</a>
+            <span>
+              <a href="{% url 'posts.pipeline' id=job.id %}" class="btn btn-sm btn-outline-dark">Pipeline</a>
+              <a href="{% url 'posts.editjob' id=job.id %}" class="btn btn-sm btn-outline-primary">Edit</a>
+            </span>
           </div>
           <div class="card-body">
             <b>Position:</b> {{ job.position }}<br />
