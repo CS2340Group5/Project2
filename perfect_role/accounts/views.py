@@ -124,3 +124,24 @@ def remove_skill(request, id):
     skill = get_object_or_404(Skill, id=id)
     request.user.skills.remove(skill)
     return redirect(reverse('accounts.edit_profile') + '#skills')
+
+@login_required
+def candidatesearch(request):
+    candidates = GenericUser.objects.filter(role='APPLICANT', is_public="True")
+    skills = request.GET.getlist('skills')
+    # location = request.GET.get('zip')
+    workexp = request.GET.get('workexp')
+    
+    # ----WAITING FOR LOCATION IMPLEMENTATION----
+
+    if skills:
+        candidates = candidates.filter(skills__name__in=skills).distinct()
+    # if location:
+    #     candidates = candidates.filter(location=location)
+    if workexp:
+        candidates = candidates.filter(experience__icontains=workexp)
+
+    template_data = {}
+    template_data['candidates'] = candidates
+    template_data['skills'] = Skill.objects.all()
+    return render(request, 'accounts/candidatesearch.html', {'template_data': template_data})

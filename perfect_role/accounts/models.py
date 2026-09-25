@@ -39,6 +39,10 @@ class GenericUser(AbstractUser):
     show_links = models.BooleanField(default=True)
     def __str__(self):
         return f"{super().__str__()} - Role: {self.role}"
+    
+    def skills_toString(self):
+            sl = self.skills.all()
+            return ", ".join([str(s) for s in sl])
 
 
 # Example of improved field with the social links

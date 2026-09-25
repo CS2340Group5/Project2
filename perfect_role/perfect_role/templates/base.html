@@ -30,6 +30,7 @@
             {% if user.role == "RECRUITER" %}
             <a class="nav-link" href="{% url 'posts.viewjobs' %}">My Postings</a>
             <a class="nav-link" href="{% url 'posts.postjobs' %}">Post Jobs</a>
+            <a class="nav-link" href="{% url 'accounts.candidatesearch' %}">Candidate Search</a>
             {% else %}
             <a class="nav-link" href="{% url 'posts.index' %}">Search</a>
             <a class="nav-link" href="{% url 'posts.viewbookmarks' %}">Bookmarks</a>

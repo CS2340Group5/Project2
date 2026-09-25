@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="p-3">
+  <div class="container">
+    <div class="row mt-3">
+      <div class="col mx-auto mb-3">
+        <h2>Candidate Search</h2>
+        <hr />
+        <div class="card-text">
+          <form method="GET">
+            <div class="row">
+              <div class="col-5">
+                <div class="input-group col-6">
+                  <div class="input-group-text" style="background-color: #75c1ff"><i class="fa-solid fa-magnifying-glass"></i></div>
+                  <input type="text" class="form-control" name="search" placeholder="Experience">
+                  <button class="input-group-text" type="button" data-bs-toggle="collapse" data-bs-target="#filterPanel" style="background-color: #FFFFFF">  
+                    <i class="fa-solid fa-filter"></i>
+                  </button>
+                </div>
+              </div>
+              <div class="col-2">
+                <div class="input-group col-6">
+                  <div class="input-group-text" style="background-color: #75c1ff"><i class="fa-solid fa-location-dot"></i></div>
+                  <input type="text" class="form-control" name="zip" placeholder="Zip Code">
+                </div>
+              </div>
+              <div class="col-auto">
+                <button class="btn bg-dark text-white" type="submit">Search</button>
+              </div>
+            </div>
+            <div class="collapse mt-3" id="filterPanel">
+              <div class="card shadow p-3 mb-4 rounded">
+                <div class="card-body">
+                    <b class="text-start">Filters</b><br /><br />
+                    <button class="btn bg-dark text-white" type="button" data-bs-toggle="collapse" data-bs-target="#skillsPanel">Skills</button><br /><br />
+                        <div class="collapse mt-0" id="skillsPanel">
+                            <div class="card shadow p-3 mb-4 rounded" style="width: 800px">
+                                <div class="card-body">
+                                    <b class="text-start">Skills</b>
+                                    {% for skill in template_data.skills %}
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="skills" value="{{ skill.name }}" id="skill{{ skill.id }}">
+                                        {{ skill.name }}
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                </div>
+              </div>
+            </div>
+          </form>
+          <div class="row mt-4 gy-3"> 
+            {% for candidate in template_data.candidates %}
+            <div class="col-md-6 col-lg-4">
+              <div class="card shadow p-3 h-100 rounded">
+                <div class="card-body">
+                  <div class="card-title">
+                    <!--<h5> {{ candidate.first_name }} </h5>-->
+                    <h5> Name </h5>
+                    <b>{{ candidate.headline|default:"No header" }}</b><br />
+                    {% if candidate.show_education %}
+                    <b>Education: </b>{{ candidate.education }}<br />
+                    {% endif %}
+                    {% if candidate.show_experience %}
+                    <b>Experience: </b>{{candidate.experience}}<br />
+                    {% endif %}
+                    <b>Skills: </b>{{ candidate.skills_toString }}<br />
+                    <!--<b>Location: </b>{{ candidate.location }}<br />-->
+                    
+                    <a href="#" class="btn mt-3 text-white" style="background-color: #75c1ff">View Profile</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}
