@@ -34,3 +34,21 @@ class Bookmark(models.Model):
 
     def __str__(self):
         return self.user.username + ' - '  + str(self.post.id)
+
+class Application(models.Model):
+    class Status(models.TextChoices):
+        APPLIED = "APPLIED", "Applied"
+        REVIEW = "REVIEW", "In Review"
+        INTERVIEW = "INTERVIEW", "Interview"
+        OFFER = "OFFER", "Offer"
+        CLOSED = "CLOSED", "Closed"
+
+    status = models.CharField(max_length=10,
+                            choices=Status.choices,
+                            default=Status.APPLIED)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
+    post = models.ForeignKey(JobPost, on_delete=models.CASCADE, null=True)
+    note = models.TextField(max_length=500, blank=True)
+
+    def __str__(self):
+        return self.user.username + ' - ' + self.post.name

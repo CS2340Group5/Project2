@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from .models import JobPost, Skill, Bookmark
+from .models import JobPost, Skill, Bookmark, Application
 from .forms import JobPostForm, CustomErrorList
 from django.http import HttpResponseForbidden
 from django.shortcuts import render, redirect, get_object_or_404
@@ -34,9 +34,10 @@ def index(request):
 
     template_data = {}
     template_data['bookmarks'] = []
+    template_data['applied'] = []
     if request.user.is_authenticated:
         template_data['bookmarks'] = [bookmark.post.id for bookmark in Bookmark.objects.filter(user=request.user)]
-
+        template_data['applied'] = [application.post.id for application in Application.objects.filter(user=request.user)]
     template_data['postings'] = postings
     template_data['skills'] = Skill.objects.all()
     return render(request, 'posts/index.html', {'template_data': template_data})
@@ -58,8 +59,30 @@ def viewbookmarks(request):
     bookmarks = Bookmark.objects.filter(user=request.user)
     template_data = {}
     template_data['bookmarks'] = [bookmark.post for bookmark in bookmarks]
+    template_data['applied'] = [application.post.id for application in Application.objects.filter(user=request.user)]
 
     return render(request, 'posts/bookmarks.html', {'template_data': template_data})
+
+@login_required
+def submitapplication(request, id):
+    post = JobPost.objects.get(id=id)
+    bookmarkCheck = Bookmark.objects.filter(user=request.user, post=post)
+
+    if request.method == 'POST':
+        if len(bookmarkCheck) != 0:
+            bookmarkCheck.delete()
+        note = request.POST.get('note')
+        Application.objects.create(user=request.user, post=post, note=note)
+
+    return redirect(request.META.get('HTTP_REFERER', 'posts.index'))
+
+@login_required
+def applications(request): 
+    applied = Application.objects.filter(user=request.user)
+    template_data = {}
+    template_data['applications'] = applied
+
+    return render(request, 'posts/applications.html', {'template_data': template_data})
 
 @login_required
 def postjobs(request):

@@ -8,30 +8,65 @@
         <hr />
         <div class="row mt-4 gy-3"> 
           {% for post in template_data.bookmarks %}
-          <div class="col-md-6 col-lg-4">
-            <div class="card shadow p-3 h-100 rounded">
-              <div class="card-body">
-                <div class="card-title">
-                  {% if user.is_authenticated %}
-                      <a href="{% url 'posts.bookmarktoggle' id=post.id %}" class="btn float-end" style="background-color: #FFFFFF">
-                          <i class="fa-solid fa-minus" style="color: #ff3556"></i>
-                      </a>
-                  {% endif %}
-                  <h5> {{ post.name }} </h5>
-                  <b>Position: </b>{{ post.position }}<br />
-                  <b>Salary: </b>${{post.salary_min}}.00<br />
-                  <b>Skills: </b>{% for skill in post.skills.all %}{{ skill.name }} {% endfor %}<br />
-                  <b>Location: </b>{{ post.location }}<br />
-                  {% if post.visa_sponsorship %}
-                    <b> Has Visa Sponsorship</b><br />
-                  {% endif %}
-                  {% if post.is_remote %}
-                    <b> Is Remote </b>
-                  {% endif %}
+            {% if post.id not in template_data.applied %}
+            <div class="col-md-6 col-lg-4">
+              <div class="card shadow p-3 h-100 rounded" style="border-left: 6px solid #75c1ff;">
+                <div class="card-body d-flex flex-column">
+                  <div class="card-title">
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'posts.bookmarktoggle' id=post.id %}" class="btn float-end" style="background-color: #FFFFFF">
+                            <i class="fa-solid fa-minus" style="color: #ff3556"></i>
+                        </a>
+                    {% endif %}
+                    <h5> {{ post.name }} </h5>
+                    <b>Position: </b>{{ post.position }}<br />
+                    <b>Salary: </b>${{post.salary_min}}.00<br />
+                    <b>Skills: </b>{% for skill in post.skills.all %}{{ skill.name }} {% endfor %}<br />
+                    <b>Location: </b>{{ post.location }}<br />
+                    {% if post.visa_sponsorship %}
+                      <b> Has Visa Sponsorship</b><br />
+                    {% endif %}
+                    {% if post.is_remote %}
+                      <b> Is Remote </b>
+                    {% endif %}
+                  </div>
+                    <button type="button" style="background-color: #75c1ff;" 
+                    class="btn btn-primary mt-auto align-self-end" data-bs-toggle="modal" data-bs-target="#submitapplication{{ post.id }}">
+                      Apply
+                    </button>
                 </div>
               </div>
             </div>
-          </div>
+            <div id="submitapplication{{ post.id }}" class="modal fade" role="dialog">
+              <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                  <form method="POST" action="{% url 'posts.submitapplication' id=post.id %}">
+                  {% csrf_token %}
+                  <div class="modal-body">
+                    <h2>{{ post.name }}</h2>
+                    <b>Position: </b>{{ post.position }}<br />
+                    <b>Salary: </b>${{post.salary_min}}.00<br />
+                    <b>Skills: </b>{% for skill in post.skills.all %}{{ skill.name }} {% endfor %}<br />
+                    <b>Location: </b>{{ post.location }}<br />
+                    {% if post.visa_sponsorship %}
+                      <b> Has Visa Sponsorship</b><br />
+                    {% endif %}
+                    {% if post.is_remote %}
+                      <b> Is Remote </b><br />
+                    {% endif %}
+                    <textarea class="form-control mt-2" name="note" placeholder="Add Note..." rows="4" maxlength="500"></textarea>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="submit" class="btn btn-info">Submit</button>
+                    <button type="button" class="btn btn-info" data-bs-dismiss="modal">Close</button>
+                  </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+            {% endif %}
+          {% empty %}
+          <p>No saved listings. Click <a href="{% url 'posts.index' %}">here</a> to browse.</p>
           {% endfor %}
         </div>
       </div>

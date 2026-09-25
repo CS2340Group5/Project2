@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="p-3">
+  <div class="container">
+    <div class="row mt-3">
+      <div class="col mx-auto mb-3">
+        <h2>Applications</h2>
+        <hr />
+        <div class="row mt-4 gy-3"> 
+          {% for applied in template_data.applications %}
+            <div class="col-md-6 col-lg-4">
+              <div class="card shadow p-3 h-100 rounded position-relative" style="border-left: 6px solid #75c1ff;">
+    <span class="badge position-absolute top-0 end-0 m-2" style="background-color:
+      {% if applied.status == 'APPLIED' %}#75c1ff
+      {% elif applied.status == 'REVIEW' %}#ffc107
+      {% elif applied.status == 'INTERVIEW' %}#17a2b8
+      {% elif applied.status == 'OFFER' %}#28a745
+      {% elif applied.status == 'CLOSED' %}#dc3545
+      {% else %}#6c757d{% endif %};">
+      {{ applied.get_status_display }}
+    </span>
+                <div class="card-body">
+                  <div class="card-title">
+                    <h5>{{ applied.post.name }}</h5>
+                    <b>Status: </b>{{ applied.get_status_display }}<br />
+                    <b>Position: </b>{{ applied.post.position }}<br />
+                    <b>Salary: </b>${{ applied.post.salary_min }}.00<br />
+                    <b>Skills: </b>{% for skill in applied.post.skills.all %}{{ skill.name }} {% endfor %}<br />
+                    <b>Location: </b>{{ applied.post.location }}<br />
+                    {% if applied.post.visa_sponsorship %}
+                      <b>Has Visa Sponsorship</b><br />
+                    {% endif %}
+                    {% if applied.post.is_remote %}
+                      <b>Is Remote</b><br />
+                    {% endif %}
+                    {% if applied.note %}
+                      <b>Your Note: </b>{{ applied.note }}<br />
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+            </div>
+          {% empty %}
+          <p>No Outgoing Applications. Click <a href="{% url 'posts.index' %}">here</a> to browse.</p>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}
