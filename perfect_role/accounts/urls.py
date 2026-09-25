@@ -12,4 +12,5 @@ urlpatterns = [
     path('profile/skills/<int:id>/remove/', views.remove_skill, name='accounts.remove_skill'),
     path('profile/links/add/', views.add_link, name='accounts.add_link'),
     path('profile/links/<int:id>/delete/', views.delete_link, name='accounts.delete_link'),
+    path('candidatesearch/', views.candidatesearch, name='accounts.candidatesearch'),
 ]
