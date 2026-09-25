@@ -38,5 +38,7 @@ class CustomUserAdmin(UserAdmin):
     )
 
 admin.site.register(GenericUser, CustomUserAdmin)
+admin.site.register(ExperienceType)
+admin.site.register(School)
 #Uncomment to access SocialLink objects from admin pannel (not neccesary)
 #admin.site.register(SocialLink)

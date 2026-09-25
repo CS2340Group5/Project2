@@ -59,3 +59,33 @@ class SocialLink(models.Model):
     title = models.CharField(max_length=30)
     def __str__(self):
         return f"{self.title}"
+
+
+class ExperienceType(models.Model):
+    name = models.CharField(max_length=100)
+    def __str__(self):
+        return self.name
+
+
+class WorkExperience(models.Model):
+    user = models.ForeignKey(GenericUser, on_delete=models.CASCADE, related_name="experiences")
+    kind = models.ForeignKey(ExperienceType, on_delete=models.CASCADE)
+    company = models.CharField(max_length=100)
+    description = models.TextField(max_length=500, blank=True)
+    def __str__(self):
+        return f"{self.kind} at {self.company}"
+
+
+class School(models.Model):
+    name = models.CharField(max_length=100)
+    def __str__(self):
+        return self.name
+
+
+class Education(models.Model):
+    user = models.ForeignKey(GenericUser, on_delete=models.CASCADE, related_name="educations")
+    school = models.ForeignKey(School, on_delete=models.CASCADE)
+    degree = models.CharField(max_length=100)
+    description = models.TextField(max_length=500, blank=True)
+    def __str__(self):
+        return f"{self.degree} at {self.school}"

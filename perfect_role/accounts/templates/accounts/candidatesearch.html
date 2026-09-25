@@ -32,6 +32,20 @@
               <div class="card shadow p-3 mb-4 rounded">
                 <div class="card-body">
                     <b class="text-start">Filters</b><br /><br />
+                    <button class="btn bg-dark text-white" type="button" data-bs-toggle="collapse" data-bs-target="#kindsPanel">Experience Type</button><br /><br />
+                        <div class="collapse mt-0" id="kindsPanel">
+                            <div class="card shadow p-3 mb-4 rounded" style="width: 800px">
+                                <div class="card-body">
+                                    <b class="text-start">Experience Type</b>
+                                    {% for kind in template_data.kinds %}
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="kinds" value="{{ kind.name }}" id="kind{{ kind.id }}">
+                                        {{ kind.name }}
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
                     <button class="btn bg-dark text-white" type="button" data-bs-toggle="collapse" data-bs-target="#skillsPanel">Skills</button><br /><br />
                         <div class="collapse mt-0" id="skillsPanel">
                             <div class="card shadow p-3 mb-4 rounded" style="width: 800px">
@@ -56,19 +70,18 @@
               <div class="card shadow p-3 h-100 rounded">
                 <div class="card-body">
                   <div class="card-title">
-                    <!--<h5> {{ candidate.first_name }} </h5>-->
-                    <h5> Name </h5>
+                    <h5>{{ candidate.username }}</h5>
                     <b>{{ candidate.headline|default:"No header" }}</b><br />
                     {% if candidate.show_education %}
-                    <b>Education: </b>{{ candidate.education }}<br />
+                    <b>Education: </b>{% for edu in candidate.educations.all %}{{ edu.degree }} at {{ edu.school }}{% if not forloop.last %}; {% endif %}{% endfor %}<br />
                     {% endif %}
                     {% if candidate.show_experience %}
-                    <b>Experience: </b>{{candidate.experience}}<br />
+                    <b>Experience: </b>{% for exp in candidate.experiences.all %}{{ exp.kind }} at {{ exp.company }}{% if not forloop.last %}; {% endif %}{% endfor %}<br />
                     {% endif %}
                     <b>Skills: </b>{{ candidate.skills_toString }}<br />
                     <!--<b>Location: </b>{{ candidate.location }}<br />-->
                     
-                    <a href="#" class="btn mt-3 text-white" style="background-color: #75c1ff">View Profile</a>
+                    <a href="{% url 'accounts.profile_view' candidate.id %}" class="btn mt-3 text-white" style="background-color: #75c1ff">View Profile</a>
                   </div>
                 </div>
               </div>

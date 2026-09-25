@@ -1,8 +1,9 @@
-from .forms import GenericUserCreationForm, CustomErrorList, ProfileForm, SocialLinkForm, PrivacyForm
-from .models import SocialLink, GenericUser
+from .forms import GenericUserCreationForm, CustomErrorList, ProfileForm, SocialLinkForm, PrivacyForm, WorkExperienceForm, EducationForm
+from .models import SocialLink, GenericUser, ExperienceType, WorkExperience, School, Education
 from posts.models import Skill
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
+from django.db.models import Q
 from django.shortcuts import render
 from django.shortcuts import redirect
 from django.contrib.auth import login as auth_login, authenticate, logout as auth_logout
@@ -55,6 +56,8 @@ def profile(request, id=None):
     template_data['title'] = 'Profile'
     template_data['profile_user'] = profile_user
     template_data['links'] = profile_user.sociallinks.all()
+    template_data['experiences'] = profile_user.experiences.all()
+    template_data['educations'] = profile_user.educations.all()
     template_data['is_owner'] = profile_user == request.user
     return render(request, 'accounts/profile.html', {'template_data': template_data})
 
@@ -67,6 +70,10 @@ def edit_profile(request):
         template_data['link_form'] = SocialLinkForm()
         template_data['links'] = request.user.sociallinks.all()
         template_data['all_skills'] = Skill.objects.all()
+        template_data['experience_form'] = WorkExperienceForm()
+        template_data['all_kinds'] = ExperienceType.objects.all()
+        template_data['education_form'] = EducationForm()
+        template_data['all_schools'] = School.objects.all()
         return render(request, 'accounts/edit_profile.html', {'template_data': template_data})
     elif request.method == 'POST':
         form = ProfileForm(request.POST, instance=request.user, error_class=CustomErrorList)
@@ -78,6 +85,10 @@ def edit_profile(request):
             template_data['link_form'] = SocialLinkForm()
             template_data['links'] = request.user.sociallinks.all()
             template_data['all_skills'] = Skill.objects.all()
+            template_data['experience_form'] = WorkExperienceForm()
+            template_data['all_kinds'] = ExperienceType.objects.all()
+            template_data['education_form'] = EducationForm()
+            template_data['all_schools'] = School.objects.all()
             return render(request, 'accounts/edit_profile.html', {'template_data': template_data})
 
 @login_required
@@ -129,19 +140,60 @@ def remove_skill(request, id):
 def candidatesearch(request):
     candidates = GenericUser.objects.filter(role='APPLICANT', is_public="True")
     skills = request.GET.getlist('skills')
-    # location = request.GET.get('zip')
-    workexp = request.GET.get('workexp')
-    
+    kinds = request.GET.getlist('kinds')
+    search = request.GET.get('search')
     # ----WAITING FOR LOCATION IMPLEMENTATION----
 
     if skills:
         candidates = candidates.filter(skills__name__in=skills).distinct()
-    # if location:
-    #     candidates = candidates.filter(location=location)
-    if workexp:
-        candidates = candidates.filter(experience__icontains=workexp)
+    if kinds:
+        candidates = candidates.filter(experiences__kind__name__in=kinds).distinct()
+    if search:
+        candidates = candidates.filter(
+            Q(experiences__company__icontains=search) | Q(experiences__description__icontains=search)).distinct()
 
     template_data = {}
     template_data['candidates'] = candidates
     template_data['skills'] = Skill.objects.all()
+    template_data['kinds'] = ExperienceType.objects.all()
     return render(request, 'accounts/candidatesearch.html', {'template_data': template_data})
+
+@login_required
+def add_experience(request):
+    name = request.POST.get('kind', '').strip()
+    form = WorkExperienceForm(request.POST)
+    if name and form.is_valid():
+        kind = ExperienceType.objects.filter(name__iexact=name).first()
+        if kind is None:
+            kind = ExperienceType.objects.create(name=name)
+        experience = form.save(commit=False)
+        experience.user = request.user
+        experience.kind = kind
+        experience.save()
+    return redirect(reverse('accounts.edit_profile') + '#experience')
+
+@login_required
+def remove_experience(request, id):
+    experience = get_object_or_404(WorkExperience, id=id, user=request.user)
+    experience.delete()
+    return redirect(reverse('accounts.edit_profile') + '#experience')
+
+@login_required
+def add_education(request):
+    name = request.POST.get('school', '').strip()
+    form = EducationForm(request.POST)
+    if name and form.is_valid():
+        school = School.objects.filter(name__iexact=name).first()
+        if school is None:
+            school = School.objects.create(name=name)
+        education = form.save(commit=False)
+        education.user = request.user
+        education.school = school
+        education.save()
+    return redirect(reverse('accounts.edit_profile') + '#education')
+
+@login_required
+def remove_education(request, id):
+    education = get_object_or_404(Education, id=id, user=request.user)
+    education.delete()
+    return redirect(reverse('accounts.edit_profile') + '#education')

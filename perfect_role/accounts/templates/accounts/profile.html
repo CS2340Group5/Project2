@@ -16,10 +16,20 @@
               {% endfor %}
             </p>
             {% if template_data.is_owner or template_data.profile_user.show_education %}
-            <p><b>Education:</b> {{ template_data.profile_user.education }}</p>
+            <p><b>Education:</b></p>
+            <ul>
+              {% for edu in template_data.educations %}
+              <li><span class="badge bg-secondary">{{ edu.school }}</span> {{ edu.degree }}{% if edu.description %}: {{ edu.description }}{% endif %}</li>
+              {% endfor %}
+            </ul>
             {% endif %}
             {% if template_data.is_owner or template_data.profile_user.show_experience %}
-            <p><b>Work experience:</b> {{ template_data.profile_user.experience }}</p>
+            <p><b>Work experience:</b></p>
+            <ul>
+              {% for exp in template_data.experiences %}
+              <li><span class="badge bg-secondary">{{ exp.kind }}</span> {{ exp.company }}{% if exp.description %}: {{ exp.description }}{% endif %}</li>
+              {% endfor %}
+            </ul>
             {% endif %}
             {% if template_data.is_owner or template_data.profile_user.show_links %}
             <p><b>Links:</b>

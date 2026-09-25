@@ -40,8 +40,7 @@ class GenericUserCreationForm(UserCreationForm):
 class ProfileForm(forms.ModelForm):
     class Meta:
         model = GenericUser
-        fields = ('headline', 'education', 'experience')
-        labels = {'experience': 'Work experience'}
+        fields = ('headline',)
 
     def __init__(self, *args, **kwargs):
         super(ProfileForm, self).__init__(*args, **kwargs)
@@ -73,3 +72,23 @@ class PrivacyForm(forms.ModelForm):
         super(PrivacyForm, self).__init__(*args, **kwargs)
         for field in self.fields.values():
             field.widget.attrs.update({'class': 'form-check-input'})
+
+class WorkExperienceForm(forms.ModelForm):
+    class Meta:
+        model = WorkExperience
+        fields = ('company', 'description')
+
+    def __init__(self, *args, **kwargs):
+        super(WorkExperienceForm, self).__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.widget.attrs.update({'class': 'form-control'})
+
+class EducationForm(forms.ModelForm):
+    class Meta:
+        model = Education
+        fields = ('degree', 'description')
+
+    def __init__(self, *args, **kwargs):
+        super(EducationForm, self).__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.widget.attrs.update({'class': 'form-control'})

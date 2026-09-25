@@ -54,6 +54,84 @@
             </script>
           </div>
         </div>
+        <div class="card shadow p-3 mb-4 rounded" id="education">
+          <div class="card-body">
+            <h4>Education</h4>
+            <hr />
+            {% for edu in user.educations.all %}
+            <p>
+              <span class="badge bg-secondary">{{ edu.school }}</span> {{ edu.degree }}{% if edu.description %}: {{ edu.description }}{% endif %}
+              <a class="btn btn-sm btn-outline-danger ms-2" href="{% url 'accounts.remove_education' edu.id %}">Remove</a>
+            </p>
+            {% endfor %}
+            <form method="POST" action="{% url 'accounts.add_education' %}">
+              {% csrf_token %}
+              <div class="position-relative mb-2">
+                <input class="form-control" name="school" id="school-input" placeholder="School (e.g. Georgia Tech)" autocomplete="off" required>
+                <div class="list-group position-absolute w-100 shadow" id="school-suggestions" style="z-index: 10"></div>
+              </div>
+              {{ template_data.education_form.as_p }}
+              <button type="submit" class="btn bg-dark text-white">Add Education</button>
+            </form>
+            <script>
+              const schools = [{% for school in template_data.all_schools %}"{{ school.name|escapejs }}",{% endfor %}];
+              const schoolInput = document.getElementById('school-input');
+              const schoolBox = document.getElementById('school-suggestions');
+              schoolInput.addEventListener('input', function () {
+                const text = schoolInput.value.trim().toLowerCase();
+                schoolBox.innerHTML = '';
+                if (!text) return;
+                schools.filter(k => k.toLowerCase().includes(text)).slice(0, 8).forEach(k => {
+                  const item = document.createElement('button');
+                  item.type = 'button';
+                  item.className = 'list-group-item list-group-item-action';
+                  item.textContent = k;
+                  item.onclick = () => { schoolInput.value = k; schoolBox.innerHTML = ''; };
+                  schoolBox.appendChild(item);
+                });
+              });
+            </script>
+          </div>
+        </div>
+        <div class="card shadow p-3 mb-4 rounded" id="experience">
+          <div class="card-body">
+            <h4>Work Experience</h4>
+            <hr />
+            {% for exp in user.experiences.all %}
+            <p>
+              <span class="badge bg-secondary">{{ exp.kind }}</span> {{ exp.company }}{% if exp.description %}: {{ exp.description }}{% endif %}
+              <a class="btn btn-sm btn-outline-danger ms-2" href="{% url 'accounts.remove_experience' exp.id %}">Remove</a>
+            </p>
+            {% endfor %}
+            <form method="POST" action="{% url 'accounts.add_experience' %}">
+              {% csrf_token %}
+              <div class="position-relative mb-2">
+                <input class="form-control" name="kind" id="kind-input" placeholder="Type of experience (e.g. Internship)" autocomplete="off" required>
+                <div class="list-group position-absolute w-100 shadow" id="kind-suggestions" style="z-index: 10"></div>
+              </div>
+              {{ template_data.experience_form.as_p }}
+              <button type="submit" class="btn bg-dark text-white">Add Experience</button>
+            </form>
+            <script>
+              const kinds = [{% for kind in template_data.all_kinds %}"{{ kind.name|escapejs }}",{% endfor %}];
+              const kindInput = document.getElementById('kind-input');
+              const kindBox = document.getElementById('kind-suggestions');
+              kindInput.addEventListener('input', function () {
+                const text = kindInput.value.trim().toLowerCase();
+                kindBox.innerHTML = '';
+                if (!text) return;
+                kinds.filter(k => k.toLowerCase().includes(text)).slice(0, 8).forEach(k => {
+                  const item = document.createElement('button');
+                  item.type = 'button';
+                  item.className = 'list-group-item list-group-item-action';
+                  item.textContent = k;
+                  item.onclick = () => { kindInput.value = k; kindBox.innerHTML = ''; };
+                  kindBox.appendChild(item);
+                });
+              });
+            </script>
+          </div>
+        </div>
         <div class="card shadow p-3 mb-4 rounded" id="links">
           <div class="card-body">
             <h4>Links</h4>
