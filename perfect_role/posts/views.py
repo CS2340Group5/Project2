@@ -165,3 +165,23 @@ def move_application(request, id):
         application.status = request.POST['status']
         application.save()
     return redirect('posts.pipeline', id=application.post.id)
+
+@login_required
+def viewpostapplications(request, id):
+    post = get_object_or_404(JobPost, pk=id)
+    if request.user != post.recruiter:
+        return redirect('home.index')
+    
+    if request.method == 'POST':
+        application_id = request.POST.get('application_id')
+        new_status = request.POST.get('status')
+        application = get_object_or_404(Application, pk=application_id, post=post)
+        application.status = new_status
+        application.save()
+        
+        return redirect('posts.view_post_applications', id=post.id)
+    
+    template_data = {}
+    template_data['applications'] = Application.objects.filter(post=post)
+    return render(request, 'posts/viewpostapplications.html', {'template_data': template_data})
+    

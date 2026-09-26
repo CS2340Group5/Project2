@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="p-3 mt-4">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-md-8">
+        <h2 class="mb-4">Applications</h2>
+        
+        {% for app in template_data.applications %}
+        <div class="card shadow p-3 mb-4 rounded">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center">
+                <h4 class="mb-0">{{ app.user.username }}</h4>
+                <a href="{% url 'accounts.profile_view' app.user.id %}" class="btn btn-sm btn-outline-primary">View Profile</a>
+            </div>
+            <hr />
+            <p><b>Note:</b> {{ app.note|default:"No note provided." }}</p>
+            
+            <form method="POST" action="#" class="d-flex align-items-center mt-3">
+              {% csrf_token %}
+              <input type="hidden" name="application_id" value="{{ app.id }}">
+              <label for="status-{{ app.id }}" class="me-2 fw-bold">Status:</label>
+              <select name="status" id="status-{{ app.id }}" class="form-select w-auto me-3">
+                <option value="APPLIED" {% if app.status == 'APPLIED' %}selected{% endif %}>Applied</option>
+                <option value="REVIEW" {% if app.status == 'REVIEW' %}selected{% endif %}>In Review</option>
+                <option value="INTERVIEW" {% if app.status == 'INTERVIEW' %}selected{% endif %}>Interview</option>
+                <option value="OFFER" {% if app.status == 'OFFER' %}selected{% endif %}>Offer</option>
+                <option value="CLOSED" {% if app.status == 'CLOSED' %}selected{% endif %}>Closed</option>
+              </select>
+              <button type="submit" class="btn btn-sm bg-dark text-white">Update Status</button>
+            </form>
+            
+          </div>
+        </div>
+        {% empty %}
+        <div class="alert alert-info">No applications received for this post yet.</div>
+        {% endfor %}
+        
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}
