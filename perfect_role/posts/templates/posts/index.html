@@ -1,5 +1,9 @@
 {% extends 'base.html' %}
 {% block content %}
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
 <div class="p-3">
   <div class="container">
     <div class="row mt-3">
@@ -77,6 +81,78 @@
               </div>
             </div>
           </form>
+
+          <div class="row mt-4">
+            <div class="col-12">
+              <div id="jobMap" style="height: 400px; width: 100%; z-index: 1;" class="rounded shadow border"></div>
+            </div>
+          </div>
+
+          <script>
+            var map = L.map('jobMap');
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+              maxZoom: 19,
+              attribution: '© OpenStreetMap'
+            }).addTo(map);
+
+            {% for post in template_data.postings %}
+              {% if post.coordinates %}
+                var lat = {{ post.coordinates.y }};
+                var lng = {{ post.coordinates.x }};
+                var marker = L.marker([lat, lng]).addTo(map);
+                
+                var popupContent = `
+                  <div style="min-width: 220px;">
+                    {% if user.is_authenticated %}
+                      <a href="{% url 'posts.bookmarktoggle' id=post.id %}" class="btn float-end p-0" style="background-color: transparent; border: none; color: #212529 !important;">
+                        {% if post.id in template_data.bookmarks %}
+                          <i class="fa-solid fa-bookmark" style="color: #75c1ff !important; font-size: 1.2rem;"></i>
+                        {% else %}
+                          <i class="fa-solid fa-bookmark" style="color: #212529 !important; font-size: 1.2rem;"></i>
+                        {% endif %}
+                      </a>
+                    {% endif %}
+                    
+                    <h5 style="margin-right: 30px; margin-bottom: 5px;">{{ post.name|escapejs }}</h5>
+                    <b>Position: </b>{{ post.position|escapejs }}<br />
+                    <b>Salary: </b>\${{ post.salary_min }}.00<br />
+                    <b>Skills: </b>{{ post.skills_toString|escapejs }}<br />
+                    <b>Location: </b>{{ post.location|escapejs }}<br />
+                    {% if post.visa_sponsorship %}<b> Has Visa Sponsorship</b><br />{% endif %}
+                    {% if post.is_remote %}<b> Is Remote </b><br />{% endif %}
+                    
+                    <button type="button" style="background-color: #75c1ff; border: none;" 
+                      class="btn btn-primary btn-sm mt-3 w-100" data-bs-toggle="modal" data-bs-target="#submitapplication{{ post.id }}">
+                      Apply
+                    </button>
+                  </div>
+                `;
+                
+                marker.bindPopup(popupContent);
+              {% endif %}
+            {% endfor %}
+
+            {% if user.is_authenticated and user.coordinates %}
+              var userLat = {{ user.coordinates.y }};
+              var userLng = {{ user.coordinates.x }};
+              
+              map.setView([userLat, userLng], 10);
+              
+              L.circleMarker([userLat, userLng], {
+                radius: 8,
+                fillColor: "#007bff",
+                color: "#ffffff",
+                weight: 2,
+                opacity: 1,
+                fillOpacity: 0.8
+              }).addTo(map).bindPopup("Your Location");
+              
+            {% else %}
+              map.setView([33.7490, -84.3880], 9); 
+            {% endif %}
+          </script>
+
           <div class="row mt-4 gy-3"> 
             {% for post in template_data.postings %}
               {% if post.id not in template_data.applied %}

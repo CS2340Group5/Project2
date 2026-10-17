@@ -1,4 +1,4 @@
-from django.db import models
+from django.contrib.gis.db import models
 from django.conf import settings
 
 class Skill(models.Model):
@@ -15,8 +15,9 @@ class JobPost(models.Model):
     salary_min = models.IntegerField()
     is_remote = models.BooleanField(default=False)
     visa_sponsorship = models.BooleanField(default=False)
-    location = models.CharField(max_length=5)
     recruiter = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
+    location = models.CharField(max_length=255)
+    coordinates = models.PointField(srid=4326, null=True, blank=True)
 
     def skills_toString(self):
         sl = self.skills.all()

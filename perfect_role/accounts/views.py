@@ -8,6 +8,8 @@ from django.shortcuts import render
 from django.shortcuts import redirect
 from django.contrib.auth import login as auth_login, authenticate, logout as auth_logout
 from django.contrib.auth.decorators import login_required
+from geopy.geocoders import Nominatim
+from django.contrib.gis.geos import Point
 
 
 def signup(request):
@@ -78,7 +80,22 @@ def edit_profile(request):
     elif request.method == 'POST':
         form = ProfileForm(request.POST, instance=request.user, error_class=CustomErrorList)
         if form.is_valid():
-            form.save()
+            user_profile = form.save(commit=False)
+            
+            if user_profile.location:
+                geolocator = Nominatim(user_agent="perfect_role")
+                try:
+                    location_data = geolocator.geocode(user_profile.location)
+                    if location_data:
+                        user_profile.coordinates = Point(location_data.longitude, location_data.latitude)
+                    else:
+                        user_profile.coordinates = None
+                except Exception:
+                    pass
+            else:
+                user_profile.coordinates = None
+            
+            user_profile.save()
             return redirect('accounts.profile')
         else:
             template_data['form'] = form

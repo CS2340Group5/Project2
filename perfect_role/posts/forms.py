@@ -20,6 +20,8 @@ class JobPostForm(forms.ModelForm):
         for fieldname in ['is_remote', 'visa_sponsorship']:
             self.fields[fieldname].help_text = None
             self.fields[fieldname].widget.attrs.update({'class': 'form-check-input'})
+            
+        self.fields['location'].widget.attrs.update({'placeholder': 'e.g. Atlanta, GA'})
 
     class Meta:
         model = JobPost
@@ -37,4 +39,5 @@ class JobPostForm(forms.ModelForm):
             'salary_min': 'Minimum Salary',
             'is_remote': 'Remote Position',
             'visa_sponsorship': 'Visa Sponsorship Available',
+            'location': 'Map Location (Full Address or City, State)'
         }

@@ -1,4 +1,4 @@
-from django.db import models
+from django.contrib.gis.db import models
 from django.contrib.auth.models import AbstractUser
 import uuid
 
@@ -31,6 +31,9 @@ class GenericUser(AbstractUser):
 
     headline = models.TextField(max_length=150, blank=True)
     skills = models.ManyToManyField('posts.Skill', blank=True)
+    
+    location = models.CharField(max_length=255, blank=True, null=True)
+    coordinates = models.PointField(srid=4326, blank=True, null=True)
 
     # Privacy options: what recruiters can see on this profile
     is_public = models.BooleanField(default=True)

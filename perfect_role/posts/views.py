@@ -5,7 +5,10 @@ from django.http import HttpResponseForbidden
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.db.models import Count
+from geopy.geocoders import Nominatim
+from django.contrib.gis.geos import Point
 
+# view jobs
 def index(request):
     postings = JobPost.objects.all()
     search = request.GET.get('search')
@@ -98,8 +101,18 @@ def postjobs(request):
     elif request.method == 'POST':
         form = JobPostForm(request.POST, error_class=CustomErrorList)
         if form.is_valid():
+            address = form.cleaned_data.get('location')
+            geolocator = Nominatim(user_agent="perfect_role")
+            location_data = geolocator.geocode(address)
+            
+            if not location_data:
+                form.add_error('location', 'Could not find that location on map, please try a different address.')
+                template_data['form'] = form
+                return render(request, 'posts/postjob.html', {'template_data': template_data})
+        
             job_post = form.save(commit=False)
             job_post.recruiter = request.user
+            job_post.coordinates = Point(location_data.longitude, location_data.latitude, srid=4326)
             job_post.save()
             form.save_m2m()
             

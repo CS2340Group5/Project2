@@ -9,6 +9,9 @@
             <h2>{{ template_data.profile_user.username }}</h2>
             {% if template_data.is_owner or template_data.profile_user.is_public %}
             <p class="text-muted">{{ template_data.profile_user.headline }}</p>
+            {% if template_data.profile_user.location %}
+            <p><b>Location:</b> {{ template_data.profile_user.location }}</p>
+            {% endif %}
             <hr />
             <p><b>Skills:</b>
               {% for skill in template_data.profile_user.skills.all %}

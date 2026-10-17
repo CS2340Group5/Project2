@@ -40,7 +40,7 @@ class GenericUserCreationForm(UserCreationForm):
 class ProfileForm(forms.ModelForm):
     class Meta:
         model = GenericUser
-        fields = ('headline',)
+        fields = ('headline', 'location')
 
     def __init__(self, *args, **kwargs):
         super(ProfileForm, self).__init__(*args, **kwargs)

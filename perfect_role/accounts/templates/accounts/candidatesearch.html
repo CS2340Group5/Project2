@@ -79,7 +79,7 @@
                     <b>Experience: </b>{% for exp in candidate.experiences.all %}{{ exp.kind }} at {{ exp.company }}{% if not forloop.last %}; {% endif %}{% endfor %}<br />
                     {% endif %}
                     <b>Skills: </b>{{ candidate.skills_toString }}<br />
-                    <!--<b>Location: </b>{{ candidate.location }}<br />-->
+                    <b>Location: </b>{{ candidate.location }}<br />
                     
                     <a href="{% url 'accounts.profile_view' candidate.id %}" class="btn mt-3 text-white" style="background-color: #75c1ff">View Profile</a>
                   </div>

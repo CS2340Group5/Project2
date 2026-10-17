@@ -141,3 +141,6 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'perfect_role/media/')
 MEDIA_URL = '/media/'
 
 AUTH_USER_MODEL = 'accounts.GenericUser'
+
+GDAL_LIBRARY_PATH = '/opt/homebrew/lib/libgdal.dylib'
+GEOS_LIBRARY_PATH = '/opt/homebrew/lib/libgeos_c.dylib'
