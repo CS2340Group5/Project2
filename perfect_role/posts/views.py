@@ -7,6 +7,8 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import Count
 from geopy.geocoders import Nominatim
 from django.contrib.gis.geos import Point
+from django.contrib.gis.db.models.functions import Distance
+from django.contrib.gis.measure import D
 from accounts.models import GenericUser
 
 # view jobs
@@ -19,7 +21,7 @@ def index(request):
     remote = request.GET.get('remote')
     visa = request.GET.get('visa')
     location = request.GET.get('zip')
-
+    distance = request.GET.get('distance')
 
     if search:
         postings = postings.filter(name__icontains=search)
@@ -35,8 +37,13 @@ def index(request):
         postings = postings.filter(visa_sponsorship=True)
     if location:
         postings = postings.filter(location=location)
+    if distance and request.user.is_authenticated and request.user.coordinates:
+        postings = postings.filter(coordinates__distance_lte=(request.user.coordinates, D(mi=distance)))
+    if request.user.is_authenticated and request.user.coordinates:
+        postings = postings.annotate(distance=Distance('coordinates', request.user.coordinates)).order_by('distance')
 
     template_data = {}
+    template_data['distance'] = distance
     template_data['bookmarks'] = []
     template_data['applied'] = []
     if request.user.is_authenticated:

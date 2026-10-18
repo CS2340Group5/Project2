@@ -28,6 +28,14 @@
                   <input type="number" class="form-control" name="zip" placeholder="Zip Code">
                 </div>
               </div>
+              {% if user.is_authenticated and user.coordinates %}
+              <div class="col-2">
+                <div class="input-group col-6">
+                  <div class="input-group-text" style="background-color: #75c1ff"><i class="fa-solid fa-route"></i></div>
+                  <input type="number" class="form-control" name="distance" placeholder="Within miles" min="1" value="{{ template_data.distance|default:'' }}">
+                </div>
+              </div>
+              {% endif %}
               <div class="col-auto">
                 <button class="btn bg-dark text-white" type="submit">Search</button>
               </div>
@@ -119,6 +127,7 @@
                     <b>Salary: </b>\${{ post.salary_min }}.00<br />
                     <b>Skills: </b>{{ post.skills_toString|escapejs }}<br />
                     <b>Location: </b>{{ post.location|escapejs }}<br />
+                    {% if post.distance %}<b>Distance: </b>{{ post.distance.mi|floatformat:1 }} miles<br />{% endif %}
                     {% if post.visa_sponsorship %}<b> Has Visa Sponsorship</b><br />{% endif %}
                     {% if post.is_remote %}<b> Is Remote </b><br />{% endif %}
                     
@@ -147,6 +156,15 @@
                 opacity: 1,
                 fillOpacity: 0.8
               }).addTo(map).bindPopup("Your Location");
+
+              {% if template_data.distance %}
+              L.circle([userLat, userLng], {
+                radius: {{ template_data.distance }} * 1609.34,
+                color: "#007bff",
+                weight: 1,
+                fillOpacity: 0.08
+              }).addTo(map);
+              {% endif %}
               
             {% else %}
               map.setView([33.7490, -84.3880], 9); 
@@ -174,6 +192,9 @@
                       <b>Salary: </b>${{post.salary_min}}.00<br />
                       <b>Skills: </b>{{ post.skills_toString }}<br />
                       <b>Location: </b>{{ post.location }}<br />
+                      {% if post.distance %}
+                        <b>Distance: </b>{{ post.distance.mi|floatformat:1 }} miles<br />
+                      {% endif %}
                       {% if post.visa_sponsorship %}
                         <b> Has Visa Sponsorship</b><br />
                       {% endif %}
