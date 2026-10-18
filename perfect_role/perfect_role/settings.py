@@ -142,5 +142,10 @@ MEDIA_URL = '/media/'
 
 AUTH_USER_MODEL = 'accounts.GenericUser'
 
-GDAL_LIBRARY_PATH = '/opt/homebrew/lib/libgdal.dylib'
-GEOS_LIBRARY_PATH = '/opt/homebrew/lib/libgeos_c.dylib'
+import platform
+if platform.system() == "Darwin":
+    GDAL_LIBRARY_PATH = '/opt/homebrew/lib/libgdal.dylib'
+    GEOS_LIBRARY_PATH = '/opt/homebrew/lib/libgeos_c.dylib'
+
+# Policy requirement for OpenStreetMap
+SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
