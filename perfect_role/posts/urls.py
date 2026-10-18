@@ -12,6 +12,7 @@ urlpatterns = [
     path('submitapplication/<int:id>', views.submitapplication, name='posts.submitapplication'),
     path('applications/', views.applications, name='posts.applications'),
     path('pipeline/<int:id>/', views.pipeline, name='posts.pipeline'),
+    path('candidates/<int:id>/', views.candidate_recommendations, name='posts.candidate_recommendations'),
     path('application/<int:id>/move/', views.move_application, name='posts.move_application'),
     path('viewpostapplications/<int:id>/', views.viewpostapplications, name = 'posts.view_post_applications'),
 ]

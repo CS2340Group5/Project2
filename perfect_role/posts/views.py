@@ -7,6 +7,7 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import Count
 from geopy.geocoders import Nominatim
 from django.contrib.gis.geos import Point
+from accounts.models import GenericUser
 
 # view jobs
 def index(request):
@@ -198,3 +199,16 @@ def viewpostapplications(request, id):
     template_data['applications'] = Application.objects.filter(post=post)
     return render(request, 'posts/viewpostapplications.html', {'template_data': template_data})
     
+
+@login_required
+def candidate_recommendations(request, id):
+    post = get_object_or_404(JobPost, pk=id)
+    if request.user != post.recruiter:
+        return redirect('home.index')
+    job_skills = post.skills.all()
+    candidates = GenericUser.objects.filter(role='APPLICANT', is_public=True, skills__in=job_skills).annotate(
+        matches=Count('skills')).order_by('-matches')
+    template_data = {'title': 'Recommended Candidates'}
+    template_data['post'] = post
+    template_data['candidates'] = candidates
+    return render(request, 'posts/candidate_recommendations.html', {'template_data': template_data})
