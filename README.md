@@ -1,7 +1,7 @@
 # PROJECT 2
 Initially creating the development virtual environment:\
 python -m venv venv\
-python -m pip -r requirements.txt
+python -m pip install -r envRequirements/requirements.txt
 
 
 # LINKING TO JIRA
