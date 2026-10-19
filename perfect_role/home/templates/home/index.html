@@ -1,22 +1,304 @@
 {% extends 'base.html' %}
 {% block content %}
-<header class="masthead bg-index text-white text-center py-5">
-  <div class="container d-flex align-items-center flex-column py-5">
-    <h1>Perfect Role</h1>
-    <p class="lead">Where job seekers and recruiters meet.</p>
-  </div>
-</header>
-<div class="p-3">
-  <div class="container">
-    <div class="row mt-3">
-      <div class="col mx-auto text-center mb-3">
-        <h4>Find your next opportunity, or your next hire.</h4>
-        <p>Build a profile, search postings, and connect with recruiters.</p>
-        {% if not user.is_authenticated %}
-        <a class="btn bg-dark text-white" href="{% url 'accounts.signup' %}">Get Started</a>
-        {% endif %}
+<section class="pr-face">
+  <div class="container position-relative">
+    <div class="row align-items-center g-4">
+      <div class="col-lg-7">
+        <!-- Want to change the feeling lucky button to be a random job rather than the recommendations-->
+        <!-- Have to wait till we have individual job post pages though-->
+        <a href="{% url 'posts.recommended' %}"><span class="pr-eyebrow mb-3"><i class="fa-solid fa-dice me-1"></i> Feeling lucky?</span></a>
+        <h1 class="mt-3">Roll the dice on your <span class="hl-gold">next</span> <span class="hl-red">role</span>.</h1>
+        <p class="lead mt-3">Perfect Role is where young professionals and recruiters take a chance on each other. Search listings, save your favorites and make your move.</p>
+        <div class="d-flex flex-wrap gap-3 mt-4">
+          <a href="{% url 'posts.index' %}" class="btn-pr"><i class="fa-solid fa-dice me-2"></i>Browse listings</a>
+          {% if not user.is_authenticated %}
+          <a href="{% url 'accounts.signup' %}" class="btn-pr-gold"><i class="fa-solid fa-user-plus me-2"></i>Sign up</a>
+          {% elif user.role == "RECRUITER" %}
+          <a href="{% url 'posts.postjobs' %}" class="btn-pr-gold"><i class="fa-solid fa-plus me-2"></i>Post a job</a>
+          <a href="{% url 'accounts.candidatesearch' %}" class="btn-pr-ink"><i class="fa-solid fa-users me-2"></i>Find candidates</a>
+          {% else %}
+          <a href="{% url 'posts.recommended' %}" class="btn-pr-gold"><i class="fa-solid fa-wand-magic-sparkles me-2"></i>Recommended for you</a>
+          {% endif %}
+        </div>
+      </div>
+      <div class="col-lg-5 text-center">
+        <svg class="pr-face-dice" viewBox="0 0 130 80" role="img" aria-label="Two dice mid-roll showing six and four"><use href="#pr-logo"/></svg>
       </div>
     </div>
+  </div>
+</section>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<div class="p-3">
+  <div class="container">
+    {% if user.is_authenticated %}
+    <!-- Search -->
+    <div class="card pr-card pr-searchbar">
+      <div class="card-body p-3 p-md-4">
+        <form method="GET" class="pr-form">
+          <div class="row g-2 align-items-top">
+            <div class="col-12 col-md-8 col-lg-5">
+              <div class="input-group align-items-top">
+                <div class="input-group-text" style="background-color: var(--gold); border: 2px solid var(--ink);"><i class="fa-solid fa-magnifying-glass"></i></div>
+                <input type="text" class="form-control" name="search" placeholder="Job Title">
+                <button class="input-group-text" type="button" data-bs-toggle="collapse" data-bs-target="#filterPanel" style="background-color: #FFFFFF; border: 2px solid var(--ink)" aria-label="Toggle filters">
+                  <i class="fa-solid fa-filter"></i>
+                </button>
+              </div>
+            </div>
+            <div class="col-8 col-md-4 col-lg-3 ps-2">
+              <div class="input-group">
+                <div class="input-group-text" style="background-color: var(--gold); border: 2px solid var(--ink)"><i class="fa-solid fa-location-dot"></i></div>
+                <input type="number" class="form-control" name="zip" placeholder="Zip Code">
+              </div>
+            </div>
+            <div class="col-auto mt-4 ps-2">
+              <button class="btn-pr mt-3" type="submit"><i class="fa-solid fa-dice-d6 me-1"></i> Roll</button>
+            </div>
+          </div>
+          <div class="collapse mt-3" id="filterPanel">
+            <div class="p-3 rounded" style="background: rgba(23,20,31,.06); border: 2px dashed rgba(23,20,31,.3)">
+              <b class="text-start d-block mb-3">Filters</b>
+              <div class="row align-items-center g-3 mb-3">
+                <div class="col-12 col-md-4">
+                  <div class="input-group">
+                    <div class="input-group-text" style="background-color: var(--gold); border: 2px solid var(--ink)">$</div>
+                    <input type="number" class="form-control" name="salary" placeholder="Minimum Salary">
+                  </div>
+                </div>
+                <div class="col-12 col-md-4">
+                  <div class="input-group mt-1">
+                    <div class="input-group-text mt-1" style="background-color: var(--gold); border: 2px solid var(--ink)"><i class="fa-solid fa-briefcase"></i></div>
+                    <input class="form-control" name="position" placeholder="Position">
+                  </div>
+                </div>
+                <div class="col-auto mt-5">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="visa" value="true" id="visa">
+                    <label class="form-check-label" for="visa">Visa Sponsorship</label>
+                  </div>
+                </div>
+                <div class="col-auto mt-5">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="remote" value="true" id="remote">
+                    <label class="form-check-label" for="remote">Is Remote</label>
+                  </div>
+                </div>
+              </div>
+              <button class="btn-pr-ink btn-pr-sm" type="button" data-bs-toggle="collapse" data-bs-target="#skillsPanel">
+                <i class="fa-solid fa-chevron-down me-1"></i> Skills
+              </button>
+              <div class="collapse mt-3" id="skillsPanel">
+                <b class="text-start d-block mb-2">Skills</b>
+                <div class="pr-skill-grid">
+                  {% for skill in template_data.skills %}
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="skills" value="{{ skill.name }}" id="skill{{ skill.id }}">
+                    <label class="form-check-label" for="skill{{ skill.id }}">{{ skill.name }}</label>
+                  </div>
+                  {% endfor %}
+                </div>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Map -->
+    <div class="row mt-4">
+      <div class="col-12">
+        <div id="jobMap" class="pr-map"></div>
+      </div>
+    </div>
+
+    <script>
+      var map = L.map('jobMap');
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '© OpenStreetMap'
+      }).addTo(map);
+
+      {% for post in template_data.postings %}
+        {% if post.coordinates %}
+          var lat = {{ post.coordinates.y }};
+          var lng = {{ post.coordinates.x }};
+          var marker = L.marker([lat, lng]).addTo(map);
+
+          var popupContent =`
+                  <div style="min-width: 220px;">
+                    {% if user.is_authenticated %}
+                      <a href="{% url 'posts.bookmarktoggle' id=post.id %}" class="btn float-end p-0" style="background-color: transparent; border: none; color: #212529 !important;">
+                        {% if post.id in template_data.bookmarks %}
+                          <i class="fa-solid fa-bookmark" style="color: #d62839 !important; font-size: 1.2rem;"></i>
+                        {% else %}
+                          <i class="fa-solid fa-bookmark" style="color: #212529 !important; font-size: 1.2rem;"></i>
+                        {% endif %}
+                      </a>
+                    {% endif %}
+                    
+                    <h5 style="margin-right: 30px; margin-bottom: 5px;">{{ post.name|escapejs }}</h5>
+                    <b>Position: </b>{{ post.position|escapejs }}<br />
+                    <b>Salary: </b>\${{ post.salary_min }}.00<br />
+                    <b>Skills: </b>{{ post.skills_toString|escapejs }}<br />
+                    <b>Location: </b>{{ post.location|escapejs }}<br />
+                    {% if post.visa_sponsorship %}<b> Has Visa Sponsorship</b><br />{% endif %}
+                    {% if post.is_remote %}<b> Is Remote </b><br />{% endif %}
+                    
+                    <button type="button"
+                      class="btn-pr btn-pr-sm mt-3 w-100" data-bs-toggle="modal" data-bs-target="#submitapplication{{ post.id }}">
+                      Apply
+                    </button>
+                  </div>
+                `;
+
+          marker.bindPopup(popupContent);
+        {% endif %}
+      {% endfor %}
+
+      {% if user.is_authenticated and user.coordinates %}
+        var userLat = {{ user.coordinates.y }};
+        var userLng = {{ user.coordinates.x }};
+
+        map.setView([userLat, userLng], 10);
+
+        L.circleMarker([userLat, userLng], {
+          radius: 8,
+          fillColor: "#d62839",
+          color: "#ffffff",
+          weight: 2,
+          opacity: 1,
+          fillOpacity: 0.9
+        }).addTo(map).bindPopup("Your Location");
+
+      {% else %}
+        map.setView([33.7490, -84.3880], 9);
+      {% endif %}
+    </script>
+
+    <!-- Listings -->
+    <div class="d-flex align-items-center justify-content-between mt-5" id="listings">
+      <h2 class="mb-0"><i class="fa-solid fa-dice-d6 me-2" style="color: var(--gold)"></i>Job Listings</h2>
+    </div>
+    <hr />
+
+    <div class="row mt-3 gy-4">
+      {% for post in template_data.postings %}
+        {% if post.id not in template_data.applied %}
+        <div class="col-md-6 col-lg-4">
+          <div class="card pr-card pr-job h-100">
+            <div class="card-body d-flex flex-column p-4">
+              <div class="card-title">
+                {% if user.is_authenticated %}
+                    <a href="{% url 'posts.bookmarktoggle' id=post.id %}" class="pr-icon-btn float-end" style="background-color: #FFFFFF">
+                      {% if post.id in template_data.bookmarks %}
+                        <i class="fa-solid fa-bookmark" style="color: var(--gold)"></i>
+                      {% else %} 
+                        <i class="fa-solid fa-bookmark" style="color: var(--ink)"></i>
+                      {% endif %}
+                    </a>
+                {% endif %}
+                <h5 class="pr-job-title">{{ post.name }}</h5>
+                <b>Position: </b>{{ post.position }}<br />
+                <b>Salary: </b><span class="pr-salary">${{post.salary_min}}</span><br />
+                <b>Skills: </b>{{ post.skills_toString }}<br />
+                <b>Location: </b>{{ post.location }}<br />
+                <div class="mt-2">
+                  {% if post.visa_sponsorship %}
+                    <span class="pr-chip pr-chip-green"><i class="fa-solid fa-passport me-1"></i>Has Visa Sponsorship</span>
+                  {% endif %}
+                  {% if post.is_remote %}
+                    <span class="pr-chip pr-chip-ink"><i class="fa-solid fa-house-laptop me-1"></i>Is Remote</span>
+                  {% endif %}
+                </div>
+              </div>
+              <button type="button"
+                class="btn-pr mt-auto align-self-end" data-bs-toggle="modal" data-bs-target="#submitapplication{{ post.id }}">
+                <i class="fa-solid fa-dice me-1"></i> Apply
+              </button>
+            </div>
+          </div>
+        </div>
+        <div id="submitapplication{{ post.id }}" class="modal fade" role="dialog">
+          <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+              <form method="POST" action="{% url 'posts.submitapplication' id=post.id %}" class="pr-form">
+              {% csrf_token %}
+              <div class="modal-body p-4">
+                <div class="pr-modal-tag mb-1"><i class="fa-solid fa-dice me-1"></i> Take your chance</div>
+                <h2>{{ post.name }}</h2>
+                <b>Position: </b>{{ post.position }}<br />
+                <b>Salary: </b>${{post.salary_min}}.00<br />
+                <b>Skills: </b>{{ post.skills_toString }}<br />
+                <b>Location: </b>{{ post.location }}<br />
+                {% if post.visa_sponsorship %}
+                  <b> Has Visa Sponsorship</b><br />
+                {% endif %}
+                {% if post.is_remote %}
+                  <b> Is Remote </b><br />
+                {% endif %}
+                <textarea class="form-control mt-3" name="note" placeholder="Add Note..." rows="4" maxlength="500"></textarea>
+              </div>
+              <div class="modal-footer">
+                <button type="submit" class="btn-pr">Submit</button>
+                <button type="button" class="btn-pr-ghost" data-bs-dismiss="modal">Close</button>
+              </div>
+              </form>
+            </div>
+          </div>
+        </div>
+        {% endif %}
+      {% empty %}
+      <div class="col-12">
+        <div class="pr-empty">
+          <i class="fa-solid fa-dice-one fa-2x mb-2" style="color: var(--gold)"></i>
+          <p class="mb-0">No positions available</p>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    {% else %}
+    <!-- How it works -->
+    <div class="mt-2 pt-4 mb-4">
+      <h2 class="text-center">Three steps to your lucky break</h2>
+      <hr />
+      <div class="row g-4 mt-4 pt-3">
+        <div class="col-md-4 pr-step">
+          <div class="card pr-card h-100 p-3">
+            <div class="pr-step-icon"><i class="fa-solid fa-magnifying-glass"></i></div>
+            <h5>1. Search</h5>
+            <p class="mb-0">Filter by title, salary, skills and location, or browse the map.</p>
+          </div>
+        </div>
+        <div class="col-md-4 pr-step">
+          <div class="card pr-card h-100 p-3">
+            <div class="pr-step-icon"><i class="fa-solid fa-dice"></i></div>
+            <h5>2. Take a chance</h5>
+            <p class="mb-0">Bookmark favorites and apply with a personal note.</p>
+          </div>
+        </div>
+        <div class="col-md-4 pr-step">
+          <div class="card pr-card h-100 p-3">
+            <div class="pr-step-icon"><i class="fa-solid fa-trophy"></i></div>
+            <h5>3. Hit the jackpot</h5>
+            <p class="mb-0">Follow your application from review to interview to offer.</p>
+          </div>
+        </div>
+      </div>
+      <div class="pr-final-step mt-5 d-flex flex-column flex-md-row align-items-center justify-content-between gap-3">
+        <div>
+          <h2 class="mb-1">Ready to roll?</h2>
+          <p class="mb-0">Create a free account as an applicant or a recruiter.</p>
+        </div>
+        <a href="{% url 'accounts.signup' %}" class="btn-pr-gold">Sign Up</a>
+      </div>
+    </div>
+    {% endif %}
+
   </div>
 </div>
 {% endblock content %}
