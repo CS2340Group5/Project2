@@ -34,6 +34,7 @@ class GenericUser(AbstractUser):
     
     location = models.CharField(max_length=255, blank=True, null=True)
     coordinates = models.PointField(srid=4326, blank=True, null=True)
+    commute_radius = models.IntegerField(blank=True, null=True)
 
     # Privacy options: what recruiters can see on this profile
     is_public = models.BooleanField(default=True)

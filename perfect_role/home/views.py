@@ -17,6 +17,8 @@ def index(request):
         visa = request.GET.get('visa')
         location = request.GET.get('zip')
         distance = request.GET.get('distance')
+        if 'distance' not in request.GET:
+            distance = request.user.commute_radius
 
         if search:
             postings = postings.filter(name__icontains=search)
