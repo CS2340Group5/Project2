@@ -13,81 +13,112 @@
       <div class="col mx-auto mb-3">
         <h2>Candidate Search</h2>
         <hr />
-        <div class="card-text">
+        <div class="card pr-card">
           <form method="GET">
             {% csrf_token %}
-            <div class="row">
-              <div class="col-5">
-                <div class="input-group col-6">
-                  <div class="input-group-text" style="background-color: #75c1ff"><i class="fa-solid fa-magnifying-glass"></i></div>
-                  <input type="text" class="form-control" name="search" placeholder="Experience">
-                  <button class="input-group-text" type="button" data-bs-toggle="collapse" data-bs-target="#filterPanel" style="background-color: #FFFFFF">  
-                    <i class="fa-solid fa-filter"></i>
-                  </button>
+            <div style="margin: 20px">
+              <div class="row">
+                <div class="col-12 col-md-8 col-lg-5">
+                  <div class="input-group col-6">
+                    <div class="input-group-text" style="background-color: var(--gold); border: 2px solid var(--ink);"><i class="fa-solid fa-magnifying-glass"></i></div>
+                    <input type="text" class="form-control" name="search" placeholder="Experience">
+                    <button class="input-group-text" type="button" data-bs-toggle="collapse" data-bs-target="#filterPanel" style="background-color: #FFFFFF; border: 2px solid var(--ink);">  
+                      <i class="fa-solid fa-filter"></i>
+                    </button>
+                  </div>
+                </div>
+                <div class="col-4 col-md-4 col-lg-2">
+                  <div class="input-group col-6">
+                    <div class="input-group-text" style="background-color: var(--gold); border: 2px solid var(--ink);"><i class="fa-solid fa-location-dot"></i></div>
+                    <input type="string" class="form-control" name="location" placeholder="Location">
+                  </div>
+                </div>
+                <div class="col-auto">
+                  <button class="btn-pr" type="submit">Search</button>
+                  {% if template_data.save_available %}
+                    <a class="btn-pr-ink" href="{% url 'accounts.candidatesearch' %}?load=1">Load Filters{% if template_data.new_matches %} <span class="badge bg-success">{{ template_data.new_matches }} new</span>{% endif %}</a>
+                  {% endif %}
                 </div>
               </div>
-              <div class="col-2">
-                <div class="input-group col-6">
-                  <div class="input-group-text" style="background-color: #75c1ff"><i class="fa-solid fa-location-dot"></i></div>
-                  <input type="text" class="form-control" name="location" placeholder="Zip Code / City">
-                </div>
-              </div>
-              <div class="col-auto">
-                <button class="btn bg-dark text-white" type="submit">Search</button>
-                {% if template_data.save_available %}
-                  <a class="btn bg-dark text-white" href="{% url 'accounts.candidatesearch' %}?load=1">Load Filters{% if template_data.new_matches %} <span class="badge bg-success">{{ template_data.new_matches }} new</span>{% endif %}</a>
-                {% endif %}
-              </div>
-            </div>
-            <div class="collapse mt-3" id="filterPanel">
-              <div class="card shadow p-3 mb-4 rounded">
-                <div class="card-body">
-                    <b class="text-start">Filters</b><br /><br />
-                    <button class="btn bg-dark text-white" type="button" data-bs-toggle="collapse" data-bs-target="#kindsPanel">Experience Type</button><br /><br />
-                        <div class="collapse mt-0" id="kindsPanel">
-                            <div class="card shadow p-3 mb-4 rounded" style="width: 800px">
-                                <div class="card-body">
-                                    <b class="text-start">Experience Type</b>
-                                    {% for kind in template_data.kinds %}
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="kinds" value="{{ kind.name }}" id="kind{{ kind.id }}" {% if kind.name in template_data.selected_kinds %}checked{% endif %}>
-                                        <label class="form-check-label" for="kind{{ kind.id }}">{{ kind.name }}</label>
-                                    </div>
-                                    {% endfor %}
-                                </div>
-                            </div>
-                        </div>
-                    <button class="btn bg-dark text-white" type="button" data-bs-toggle="collapse" data-bs-target="#skillsPanel">Skills</button><br /><br />
-                        <div class="collapse mt-0" id="skillsPanel">
-                            <div class="card shadow p-3 mb-4 rounded" style="width: 800px">
-                                <div class="card-body">
-                                    <b class="text-start">Skills</b>
-                                    
-                                    <input type="text" id="candidateSkillSearch" class="form-control mb-3 mt-2" placeholder="Search skills...">
-                                    
-                                    <div id="skillsContainer" class="border rounded p-2" style="max-height: 200px; overflow-y: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 0.25rem 1rem;">
-                                        {% for skill in template_data.skills %}
-                                        <div class="form-check skill-item">
-                                            <input class="form-check-input" type="checkbox" name="skills" value="{{ skill.name }}" id="skill{{ skill.id }}" {% if skill.name in template_data.selected_skills %}checked{% endif %}>
-                                            <label class="form-check-label" for="skill{{ skill.id }}">{{ skill.name }}</label>
-                                        </div>
-                                        {% endfor %}
-                                    </div>
-                                    
-                                </div>
-                            </div>
-                        </div>
-                        <button class="btn bg-dark text-white" type="submit" formaction="{% url 'accounts.save_search' %}" formmethod="post">Save Filters</button>
+              <div class="collapse mt-3" id="filterPanel">
+                <div class="card shadow p-3 mb-4 rounded">
+                  <div class="card-body">
+                      <b class="text-start">Filters</b><br /><br />
+                      <button class="btn bg-dark text-white" type="button" data-bs-toggle="collapse" data-bs-target="#kindsPanel">Experience Type</button><br /><br />
+                          <div class="collapse mt-0" id="kindsPanel">
+                              <div class="card shadow p-3 mb-4 rounded" style="width: 800px">
+                                  <div class="card-body">
+                                      <b class="text-start">Experience Type</b>
+                                      {% for kind in template_data.kinds %}
+                                      <div class="form-check">
+                                          <input class="form-check-input" type="checkbox" name="kinds" value="{{ kind.name }}" id="kind{{ kind.id }}" {% if kind.name in template_data.selected_kinds %}checked{% endif %}>
+                                          <label class="form-check-label" for="kind{{ kind.id }}">{{ kind.name }}</label>
+                                      </div>
+                                      {% endfor %}
+                                  </div>
+                              </div>
+                          </div>
+                      <button class="btn bg-dark text-white" type="button" data-bs-toggle="collapse" data-bs-target="#skillsPanel">Skills</button><br /><br />
+                          <div class="collapse mt-0" id="skillsPanel">
+                              <div class="card shadow p-3 mb-4 rounded" style="width: 800px">
+                                  <div class="card-body">
+                                      <b class="text-start">Skills</b>
+                                      
+                                      <input type="text" id="candidateSkillSearch" class="form-control mb-3 mt-2" placeholder="Search skills...">
+                                      
+                                      <div id="skillsContainer" class="border rounded p-2" style="max-height: 200px; overflow-y: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 0.25rem 1rem;">
+                                          {% for skill in template_data.skills %}
+                                          <div class="form-check skill-item">
+                                              <input class="form-check-input" type="checkbox" name="skills" value="{{ skill.name }}" id="skill{{ skill.id }}" {% if skill.name in template_data.selected_skills %}checked{% endif %}>
+                                              <label class="form-check-label" for="skill{{ skill.id }}">{{ skill.name }}</label>
+                                          </div>
+                                          {% endfor %}
+                                      </div>
+                                      
+                                  </div>
+                              </div>
+                          </div>
+                          <button class="btn bg-dark text-white" type="submit" formaction="{% url 'accounts.save_search' %}" formmethod="post">Save Filters</button>
+                  </div>
                 </div>
               </div>
             </div>
           </form>
+        </div>
 
           <div class="row mt-4">
-            <div class="col-12">
-              <div id="candidateMap" style="height: 400px; width: 100%; z-index: 1;" class="rounded shadow border"></div>
+            <div class="col-3">
+            <button class="btn-pr-sm collapse-btn mb-2" data-bs-toggle="collapse" data-bs-target="#map">Open Map</button>
+            </div>
+            <div class="col-12 collapse" id="map">
+              <div id="candidateMap" class="pr-map map-collapse"></div>
             </div>
           </div>
+
+          <!-- Hide Map Script (must reload map div size)
+          Req: collapse-btn class on button to do the collapsing
+                map-collapse class on div with the map connected-->
+          <script>
+            const btn = document.querySelector('.collapse-btn')
+            const mapDiv = document.querySelector('.map-collapse')
+            const resizeObserver = new ResizeObserver(() => {
+              map.invalidateSize();
+            });
+            let collapsed = true;
+
+            // Toggle display style
+            btn.addEventListener('click', function() {
+              if (!collapsed) {
+                btn.textContent = "Open Map";
+                resizeObserver.observe(mapDiv);
+                collapsed = !collapsed
+              } else {
+                btn.textContent = "Hide Map";
+                resizeObserver.observe(mapDiv);
+                collapsed = !collapsed
+              }
+            })
+          </script>
 
           <script>
             var map = L.map('candidateMap');
@@ -163,27 +194,32 @@
             });
           </script>
 
+          <hr />
           <div class="row mt-4 gy-3"> 
             {% for candidate in template_data.candidates %}
             <div class="col-md-6 col-lg-4">
-              <div class="card shadow p-3 h-100 rounded">
-                <div class="card-body">
-                  <div class="card-title">
-                    <h5>{{ candidate.username }}</h5>
-                    <b>{{ candidate.headline|default:"No header" }}</b><br />
-                    {% if candidate.show_education %}
-                    <b>Education: </b>{% for edu in candidate.educations.all %}{{ edu.degree }} at {{ edu.school }}{% if not forloop.last %}; {% endif %}{% endfor %}<br />
-                    {% endif %}
-                    {% if candidate.show_experience %}
-                    <b>Experience: </b>{% for exp in candidate.experiences.all %}{{ exp.kind }} at {{ exp.company }}{% if not forloop.last %}; {% endif %}{% endfor %}<br />
-                    {% endif %}
-                    <b>Skills: </b>{{ candidate.skills_toString }}<br />
-                    <b>Location: </b>{{ candidate.location }}<br />
-                    
-                    <a href="{% url 'accounts.profile_view' candidate.id %}" class="btn mt-3 text-white" style="background-color: #75c1ff">View Profile</a>
+              <div class="card pr-card candidate-card h-100">
+              <div class="card-body">
+                <div class="card-title">
+                  <div class="row">
+                    <div class="col-8"><h3 class="mb-0">{{ candidate.username }}</h3></div>
                   </div>
+                  <hr />
+                  <b>{{ candidate.headline|default:"No header" }}</b><br />
+                  {% if candidate.show_education %}
+                  <b>Education: </b>{% for edu in candidate.educations.all %}{{ edu.degree }} at {{ edu.school }}{% if not forloop.last %}; {% endif %}{% endfor %}<br />
+                  {% endif %}
+                  {% if candidate.show_experience %}
+                  <b>Experience: </b>{% for exp in candidate.experiences.all %}{{ exp.kind }} at {{ exp.company }}{% if not forloop.last %}; {% endif %}{% endfor %}<br />
+                  {% endif %}
+                  <b>Skills: </b>{{ candidate.skills_toString }}<br />
+                  {% if candidate.show_location %}
+                  <b>Location: </b>{{ candidate.location }}
+                  {% endif %}
+                  <a href="{% url 'accounts.profile_view' candidate.id %}" class="btn-pr-gold mt-3">View Profile</a>
                 </div>
               </div>
+            </div>
             </div>
             {% endfor %}
           </div>
