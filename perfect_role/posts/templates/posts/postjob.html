@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% block content %}
+
 <div class="p-3 mt-4">
   <div class="container">
     <div class="row justify-content-center">
@@ -10,8 +11,49 @@
             <hr />
             <form method="POST">
               {% csrf_token %}
-              {{ template_data.form.as_p }}
-              <button type="submit" class="btn bg-dark text-white">
+              
+              {% for field in template_data.form %}
+                  {% if field.name == 'skills' %}
+                      <div class="form-group mb-3">
+                          <label class="fw-bold">{{ field.label }}</label>
+                          
+                          <input type="text" id="skillSearch" class="form-control mb-2" placeholder="Search skills...">
+                          
+                          <div id="skillsContainer" class="border rounded p-2 mb-2"
+                              style="max-height: 200px; overflow-y: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 0.25rem 1rem;">
+                              {% for checkbox in field %}
+                                  <div class="form-check skill-item">
+                                      {{ checkbox.tag }}
+                                      <label class="form-check-label" for="{{ checkbox.id_for_label }}">
+                                          {{ checkbox.choice_label }}
+                                      </label>
+                                  </div>
+                              {% endfor %}
+                          </div>
+
+                          <div class="mt-2">
+                              <button type="button" class="btn btn-sm btn-outline-secondary" id="showRequestBtn">
+                                Don't see a skill? Request it
+                              </button>
+                              <div id="requestDiv" style="display: none;" class="mt-2 p-2 border rounded bg-light">
+                                  <div class="input-group input-group-sm">
+                                      <input type="text" id="newSkillName" class="form-control" placeholder="Enter skill name">
+                                      <button type="button" class="btn btn-primary" id="submitSkillBtn">Submit Request</button>
+                                  </div>
+                                  <small id="requestStatus" class="text-success mt-1" style="display:none;"></small>
+                              </div>
+                          </div>
+                      </div>
+                  {% else %}
+                      <div class="form-group mb-3">
+                          <label class="fw-bold">{{ field.label_tag }}</label>
+                          {{ field }}
+                          {{ field.errors }}
+                      </div>
+                  {% endif %}
+              {% endfor %}
+
+              <button type="submit" class="btn bg-dark text-white mt-3">
                 Post Job
               </button>
             </form>
@@ -21,4 +63,50 @@
     </div>
   </div>
 </div>
+
+<script>
+    document.getElementById('skillSearch').addEventListener('keyup', function() {
+        let filter = this.value.toLowerCase();
+        let items = document.getElementsByClassName('skill-item');
+        
+        for (let i = 0; i < items.length; i++) {
+            let label = items[i].textContent || items[i].innerText;
+            items[i].style.display = label.toLowerCase().indexOf(filter) > -1 ? "" : "none";
+        }
+    });
+
+    document.getElementById('showRequestBtn').addEventListener('click', function() {
+        let div = document.getElementById('requestDiv');
+        div.style.display = div.style.display === 'none' ? 'block' : 'none';
+    });
+
+    document.getElementById('submitSkillBtn').addEventListener('click', function() {
+        let skillNameInput = document.getElementById('newSkillName');
+        let skillName = skillNameInput.value.trim();
+        let statusMsg = document.getElementById('requestStatus');
+
+        if (!skillName) return;
+
+        fetch("{% url 'posts.request_skill' %}", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": document.querySelector('[name=csrfmiddlewaretoken]').value
+            },
+            body: JSON.stringify({ skill_name: skillName })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                skillNameInput.value = '';
+                statusMsg.textContent = "Skill requested successfully! An admin will review it.";
+                statusMsg.style.display = 'block';
+                setTimeout(() => {
+                    statusMsg.style.display = 'none';
+                    document.getElementById('requestDiv').style.display = 'none';
+                }, 3000);
+            }
+        });
+    });
+</script>
 {% endblock content %}

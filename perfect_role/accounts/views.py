@@ -10,6 +10,8 @@ from django.contrib.auth import login as auth_login, authenticate, logout as aut
 from django.contrib.auth.decorators import login_required
 from geopy.geocoders import Nominatim
 from django.contrib.gis.geos import Point
+from django.contrib.gis.db.models.functions import Distance
+from django.contrib.gis.measure import D
 
 
 def signup(request):
@@ -155,11 +157,11 @@ def remove_skill(request, id):
 
 @login_required
 def candidatesearch(request):
-    candidates = GenericUser.objects.filter(role='APPLICANT', is_public="True")
+    candidates = GenericUser.objects.filter(role='APPLICANT', is_public=True).exclude(is_superuser=True)
     skills = request.GET.getlist('skills')
     kinds = request.GET.getlist('kinds')
     search = request.GET.get('search')
-    # ----WAITING FOR LOCATION IMPLEMENTATION----
+    location = request.GET.get('zip')
 
     if skills:
         candidates = candidates.filter(skills__name__in=skills).distinct()
@@ -168,6 +170,8 @@ def candidatesearch(request):
     if search:
         candidates = candidates.filter(
             Q(experiences__company__icontains=search) | Q(experiences__description__icontains=search)).distinct()
+    if location:
+        candidates = candidates.filter(location__icontains=location)
 
     template_data = {}
     template_data['candidates'] = candidates

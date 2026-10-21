@@ -149,3 +149,7 @@ if platform.system() == "Darwin":
 
 # Policy requirement for OpenStreetMap
 SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
+
+# need for macOS
+GDAL_LIBRARY_PATH = '/opt/homebrew/lib/libgdal.dylib'
+GEOS_LIBRARY_PATH = '/opt/homebrew/lib/libgeos_c.dylib'
