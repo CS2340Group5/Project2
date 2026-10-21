@@ -40,7 +40,8 @@ class GenericUserCreationForm(UserCreationForm):
 class ProfileForm(forms.ModelForm):
     class Meta:
         model = GenericUser
-        fields = ('headline', 'location')
+        fields = ('headline', 'location', 'commute_radius')
+        labels = {'commute_radius': 'Preferred commute radius (miles)'}
 
     def __init__(self, *args, **kwargs):
         super(ProfileForm, self).__init__(*args, **kwargs)

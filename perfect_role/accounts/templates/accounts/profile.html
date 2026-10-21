@@ -11,6 +11,9 @@
             <p class="text-muted">{{ template_data.profile_user.headline }}</p>
             {% if template_data.profile_user.location %}
             <p><b>Location:</b> {{ template_data.profile_user.location }}</p>
+            {% if template_data.is_owner and template_data.profile_user.commute_radius %}
+            <p><b>Commute radius:</b> {{ template_data.profile_user.commute_radius }} miles</p>
+            {% endif %}
             {% endif %}
             <hr />
             <p><b>Skills:</b>
