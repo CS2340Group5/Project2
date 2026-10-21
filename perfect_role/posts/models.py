@@ -10,7 +10,7 @@ class Skill(models.Model):
 class JobPost(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=255)
-    skills = models.ManyToManyField(Skill)
+    skills = models.ManyToManyField(Skill, blank=True)
     position = models.CharField(max_length=150)
     salary_min = models.IntegerField()
     is_remote = models.BooleanField(default=False)

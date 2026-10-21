@@ -4,17 +4,19 @@
   <div class="container">
     <div class="row justify-content-center">
       <div class="col-md-8">
-        <h2 class="mb-4">Applications</h2>
-        
+        <h2 class="mb-2">Applications</h2>
+        <hr />
         {% for app in template_data.applications %}
-        <div class="card shadow p-3 mb-4 rounded">
+        <div class="card pr-card shadow p-3 mt-3 mb-4 rounded">
           <div class="card-body">
             <div class="d-flex justify-content-between align-items-center">
-                <h4 class="mb-0">{{ app.user.username }}</h4>
-                <a href="{% url 'accounts.profile_view' app.user.id %}" class="btn btn-sm btn-outline-primary">View Profile</a>
+                <h2 class="mb-0">{{ app.user.username }}</h2>
+                <a href="{% url 'accounts.profile_view' app.user.id %}" class="btn btn-pr-sm btn-outline-primary">View Profile</a>
             </div>
             <hr />
-            <p><b>Note:</b> {{ app.note|default:"No note provided." }}</p>
+            <div class="p-3 rounded" style="background: rgba(23,20,31,.06); border: 2px dashed rgba(23,20,31,.3)">
+              <b>Note:</b> {{ app.note|default:"No note provided." }}
+            </div>
             
             <form method="POST" action="#" class="d-flex align-items-center mt-3">
               {% csrf_token %}
@@ -27,7 +29,7 @@
                 <option value="OFFER" {% if app.status == 'OFFER' %}selected{% endif %}>Offer</option>
                 <option value="CLOSED" {% if app.status == 'CLOSED' %}selected{% endif %}>Closed</option>
               </select>
-              <button type="submit" class="btn btn-sm bg-dark text-white">Update Status</button>
+              <button type="submit" class="btn btn-pr-sm bg-dark text-white">Update Status</button>
             </form>
             
           </div>

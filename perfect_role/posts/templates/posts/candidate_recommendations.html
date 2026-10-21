@@ -12,11 +12,16 @@
         <div class="row mt-4 gy-3">
           {% for candidate in template_data.candidates %}
           <div class="col-md-6 col-lg-4">
-            <div class="card shadow p-3 h-100 rounded">
+            <div class="card pr-card candidate-card h-100">
               <div class="card-body">
                 <div class="card-title">
-                  <h5>{{ candidate.username }}</h5>
-                  <span class="badge bg-success">{{ candidate.matches }} matching skill{{ candidate.matches|pluralize }}</span><br /><br />
+                  <div class="row">
+                    <div class="col-8"><h3 class="mb-0">{{ candidate.username }}</h3></div>
+                    <div class="col-auto">
+                      <span class="badge bg-success"><b>{{ candidate.matches }} matching skill{{ candidate.matches|pluralize }}</b></span>
+                    </div>
+                  </div>
+                  <hr />
                   <b>{{ candidate.headline|default:"No header" }}</b><br />
                   {% if candidate.show_education %}
                   <b>Education: </b>{% for edu in candidate.educations.all %}{{ edu.degree }} at {{ edu.school }}{% if not forloop.last %}; {% endif %}{% endfor %}<br />
@@ -25,7 +30,7 @@
                   <b>Experience: </b>{% for exp in candidate.experiences.all %}{{ exp.kind }} at {{ exp.company }}{% if not forloop.last %}; {% endif %}{% endfor %}<br />
                   {% endif %}
                   <b>Skills: </b>{{ candidate.skills_toString }}<br />
-                  <a href="{% url 'accounts.profile_view' candidate.id %}" class="btn mt-3 text-white" style="background-color: #75c1ff">View Profile</a>
+                  <a href="{% url 'accounts.profile_view' candidate.id %}" class="btn-pr-gold mt-3">View Profile</a>
                 </div>
               </div>
             </div>
