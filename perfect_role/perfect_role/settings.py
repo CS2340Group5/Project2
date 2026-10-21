@@ -42,7 +42,8 @@ INSTALLED_APPS = [
     'home',
     'accounts',
     'posts',
-    'exports'
+    'exports',
+    'messaging'
 ]
 
 MIDDLEWARE = [

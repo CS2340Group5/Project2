@@ -70,7 +70,7 @@
   <div id="messageuser" class="modal fade" role="dialog">
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
-        <form method="POST" action="{% url 'accounts.send_email' id=template_data.profile_user.id %}">
+        <form method="POST" action="{% url 'messaging.send_email' id=template_data.profile_user.id %}">
         {% csrf_token %}
         <div class="modal-body">
           <h2>{{ template_data.profile_user.username }}</h2>
@@ -79,6 +79,17 @@
             <b>Skills: </b>{{ template_data.profile_user.skills_toString }}<br />
             <b>Location: </b>{{ template_data.profile_user.location }}<br />
           {% endif %}
+           <div class="mt-2">
+            <b>Send as: </b>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" name="method" id="method-message" value="message" checked>
+              <label class="form-check-label" for="method-message">Message</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" name="method" id="method-email" value="email">
+              <label class="form-check-label" for="method-email">Email</label>
+            </div>
+          </div>
           <div class="col-auto">
             <div class="input-group col-auto">
               <textarea class="form-control" name="message" placeholder="Add Message..." rows="4" maxlength="500"></textarea>
