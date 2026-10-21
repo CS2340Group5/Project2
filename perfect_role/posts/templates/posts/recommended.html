@@ -4,7 +4,7 @@
   <div class="container">
     <div class="row mt-3">
       <div class="col mx-auto mb-3">
-        <h2>Recommended Jobs</h2>
+        <h2><i class="fa-solid fa-clover"></i> Recommended Jobs</h2>
         <hr />
         {% if not template_data.has_skills %}
         <p>Add skills to your <a href="{% url 'accounts.edit_profile' %}">profile</a> to get recommendations.</p>
@@ -14,21 +14,24 @@
         <div class="row mt-4">
           {% for post in template_data.postings %}
           <div class="col-md-6 col-lg-4 mb-3">
-            <div class="card shadow p-3 h-100 rounded">
+            <div class="card pr-card pr-job p-3 h-100" style="border-left-color: var(--gold) !important;">
               <div class="card-body">
                 <div class="card-title">
                   <h5>{{ post.name }}</h5>
-                  <span class="badge bg-success">{{ post.matches }} matching skill{{ post.matches|pluralize }}</span><br /><br />
+                  <span class="badge bg-success">{{ post.matches }} matching skill{{ post.matches|pluralize }}</span>
+                  <hr />
                   <b>Position: </b>{{ post.position }}<br />
-                  <b>Salary: </b>${{ post.salary_min }}.00<br />
+                  <b>Salary: </b><span class="pr-salary">${{post.salary_min}}</span><br />
                   <b>Skills: </b>{{ post.skills_toString }}<br />
                   <b>Location: </b>{{ post.location }}<br />
-                  {% if post.visa_sponsorship %}
-                    <b>Has Visa Sponsorship</b><br />
-                  {% endif %}
-                  {% if post.is_remote %}
-                    <b>Is Remote</b>
-                  {% endif %}
+                  <div class="mt-2">
+                    {% if post.visa_sponsorship %}
+                      <span class="pr-chip pr-chip-green"><i class="fa-solid fa-passport me-1"></i>Has Visa Sponsorship</span>
+                    {% endif %}
+                    {% if post.is_remote %}
+                      <span class="pr-chip pr-chip-ink"><i class="fa-solid fa-house-laptop me-1"></i>Is Remote</span>
+                    {% endif %}
+                  </div>
                 </div>
               </div>
             </div>
