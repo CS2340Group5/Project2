@@ -21,7 +21,7 @@ def index(request):
     salary_min = request.GET.get('salary')
     remote = request.GET.get('remote')
     visa = request.GET.get('visa')
-    location = request.GET.get('zip')
+    location = request.GET.get('location')
     distance = request.GET.get('distance')
 
     if search:

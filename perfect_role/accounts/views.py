@@ -159,6 +159,7 @@ def candidatesearch(request):
     skills = request.GET.getlist('skills')
     kinds = request.GET.getlist('kinds')
     search = request.GET.get('search')
+    location = request.GET.get('location')
     # ----WAITING FOR LOCATION IMPLEMENTATION----
 
     if skills:
