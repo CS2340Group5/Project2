@@ -134,9 +134,11 @@ hr {
   position: relative;
 }
 .pr-job:hover { transform: translateY(-6px) rotate(-.6deg); box-shadow: 0 12px 0 rgba(0, 0, 0, .35); }
-/* Cool color variation thing
-.col-md-6:nth-child(3n+2) > .pr-job { border-left-color: var(--gold) !important; }
-.col-md-6:nth-child(3n+3) > .pr-job { border-left-color: var(--ink) !important; }*/
+.pr-job-APPLIED { border-left-color: #3b82c4 !important; }
+.pr-job-REVIEW { border-left-color: #17b89d !important; }
+.pr-job-INTERVIEW { border-left-color: #2ab670 !important; }
+.pr-job-OFFER { border-left-color: var(--gold) !important; }
+.pr-job-CLOSED { border-left-color: var(--red) !important; }
 
 .pr-job-title { font-weight: 800; line-height: 1.25; margin-bottom: .6rem; }
 .pr-job b { color: var(--red-deep); font-size: .78rem; text-transform: uppercase; letter-spacing: .05em; }
@@ -167,6 +169,17 @@ hr {
 .pr-chip-green { background: #2f9e62; color: #fff; }
 .pr-chip-ink { background: var(--ink); color: var(--ivory); }
 
+/* Application status chips */
+.pr-status { position: absolute; top: -2px; right: -2px; border-radius: 0 16px 0 14px; padding: .35rem .9rem;
+  font-weight: 800; font-size: 0.8rem; letter-spacing: .05em; 
+  text-transform: uppercase; color: #fff; 
+  border: 2px solid var(--ink); 
+}
+.pr-status-APPLIED { background: #3b82c4; }
+.pr-status-REVIEW { background: #17b89d; }
+.pr-status-INTERVIEW { background: #2ab670; }
+.pr-status-OFFER { background: var(--gold); color: var(--ink); }
+.pr-status-CLOSED { background: var(--red); }
 
 /* Page headings */
 .pr-eyebrow {
