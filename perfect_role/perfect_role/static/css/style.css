@@ -276,6 +276,17 @@ hr {
 .pr-form-title { display: flex; align-items: center; gap: .8rem; }
 .pr-form-title i { color: var(--red); }
 
+/* Modals */
+.modal-content {
+  background: var(--ivory);
+  color: var(--ink);
+  border: 3px solid var(--ink);
+  border-radius: 20px;
+  box-shadow: 0 10px 0 rgba(0, 0, 0, .4);
+}
+.modal-footer { border-top: 3px dotted rgba(23, 20, 31, .25); }
+.pr-modal-tag { color: var(--red); font-weight: 800; letter-spacing: .08em; text-transform: uppercase; font-size: .8rem; }
+
 /* ---------- Motion ---------- */
 @keyframes pr-float {
   0%, 100% { transform: translateY(0) rotate(-2deg); }
