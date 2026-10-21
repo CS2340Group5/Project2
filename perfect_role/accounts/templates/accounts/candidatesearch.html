@@ -1,5 +1,12 @@
 {% extends 'base.html' %}
 {% block content %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
+<script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+
 <div class="p-3">
   <div class="container">
     <div class="row mt-3">
@@ -21,7 +28,7 @@
               <div class="col-2">
                 <div class="input-group col-6">
                   <div class="input-group-text" style="background-color: #75c1ff"><i class="fa-solid fa-location-dot"></i></div>
-                  <input type="string" class="form-control" name="location" placeholder="Location">
+                  <input type="text" class="form-control" name="location" placeholder="Zip Code / City">
                 </div>
               </div>
               <div class="col-auto">
@@ -40,7 +47,7 @@
                                     {% for kind in template_data.kinds %}
                                     <div class="form-check">
                                         <input class="form-check-input" type="checkbox" name="kinds" value="{{ kind.name }}" id="kind{{ kind.id }}">
-                                        {{ kind.name }}
+                                        <label class="form-check-label" for="kind{{ kind.id }}">{{ kind.name }}</label>
                                     </div>
                                     {% endfor %}
                                 </div>
@@ -51,12 +58,18 @@
                             <div class="card shadow p-3 mb-4 rounded" style="width: 800px">
                                 <div class="card-body">
                                     <b class="text-start">Skills</b>
-                                    {% for skill in template_data.skills %}
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="skills" value="{{ skill.name }}" id="skill{{ skill.id }}">
-                                        {{ skill.name }}
+                                    
+                                    <input type="text" id="candidateSkillSearch" class="form-control mb-3 mt-2" placeholder="Search skills...">
+                                    
+                                    <div id="skillsContainer" class="border rounded p-2" style="max-height: 200px; overflow-y: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 0.25rem 1rem;">
+                                        {% for skill in template_data.skills %}
+                                        <div class="form-check skill-item">
+                                            <input class="form-check-input" type="checkbox" name="skills" value="{{ skill.name }}" id="skill{{ skill.id }}">
+                                            <label class="form-check-label" for="skill{{ skill.id }}">{{ skill.name }}</label>
+                                        </div>
+                                        {% endfor %}
                                     </div>
-                                    {% endfor %}
+                                    
                                 </div>
                             </div>
                         </div>
@@ -64,6 +77,87 @@
               </div>
             </div>
           </form>
+
+          <div class="row mt-4">
+            <div class="col-12">
+              <div id="candidateMap" style="height: 400px; width: 100%; z-index: 1;" class="rounded shadow border"></div>
+            </div>
+          </div>
+
+          <script>
+            var map = L.map('candidateMap');
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+              maxZoom: 19,
+              attribution: '© OpenStreetMap'
+            }).addTo(map);
+
+            var markers = L.markerClusterGroup({
+                maxClusterRadius: 50 
+            });
+
+            {% for candidate in template_data.candidates %}
+              {% if candidate.coordinates %}
+                var lat = {{ candidate.coordinates.y }};
+                var lng = {{ candidate.coordinates.x }};
+                
+                var marker = L.marker([lat, lng]);
+                
+                var popupContent = `
+                  <div style="min-width: 200px;">
+                    <h5 style="margin-bottom: 5px;">{{ candidate.username|escapejs }}</h5>
+                    <b>{{ candidate.headline|default:"No header"|escapejs }}</b><br />
+                    <b>Location: </b>{{ candidate.location|escapejs }}<br />
+                    <b>Skills: </b>{{ candidate.skills_toString|escapejs }}<br />
+                    
+                    <a href="{% url 'accounts.profile_view' candidate.id %}" 
+                       class="btn btn-primary btn-sm mt-3 w-100" 
+                       style="background-color: #75c1ff; border: none;">
+                      View Profile
+                    </a>
+                  </div>
+                `;
+                
+                marker.bindPopup(popupContent);
+                
+                markers.addLayer(marker);
+              {% endif %}
+            {% endfor %}
+
+            map.addLayer(markers);
+
+            {% if user.is_authenticated and user.coordinates %}
+              var userLat = {{ user.coordinates.y }};
+              var userLng = {{ user.coordinates.x }};
+              
+              map.setView([userLat, userLng], 10);
+              
+              L.circleMarker([userLat, userLng], {
+                radius: 8,
+                fillColor: "#007bff",
+                color: "#ffffff",
+                weight: 2,
+                opacity: 1,
+                fillOpacity: 0.8
+              }).addTo(map).bindPopup("Your Location");
+              
+            {% else %}
+              map.setView([33.7490, -84.3880], 9); 
+            {% endif %}
+          </script>
+
+          <script>
+            document.getElementById('candidateSkillSearch').addEventListener('keyup', function() {
+                let filter = this.value.toLowerCase();
+                let items = document.getElementsByClassName('skill-item');
+                
+                for (let i = 0; i < items.length; i++) {
+                    let label = items[i].textContent || items[i].innerText;
+                    items[i].style.display = label.toLowerCase().indexOf(filter) > -1 ? "" : "none";
+                }
+            });
+          </script>
+
           <div class="row mt-4 gy-3"> 
             {% for candidate in template_data.candidates %}
             <div class="col-md-6 col-lg-4">
@@ -88,6 +182,7 @@
             </div>
             {% endfor %}
           </div>
+          
         </div>
       </div>
     </div>

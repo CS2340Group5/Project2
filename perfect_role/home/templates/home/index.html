@@ -100,9 +100,10 @@
               </button>
               <div class="collapse mt-3" id="skillsPanel">
                 <b class="text-start d-block mb-2">Skills</b>
-                <div class="pr-skill-grid">
+                <input type="text" id="jobSkillSearch" class="form-control mb-3 mt-2" placeholder="Search skills...">
+                <div class="pr-skill-grid border rounded p-2" style="max-height: 200px; overflow-y: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 0.25rem 1rem;">
                   {% for skill in template_data.skills %}
-                  <div class="form-check">
+                  <div class="form-check skill-item">
                     <input class="form-check-input" type="checkbox" name="skills" value="{{ skill.name }}" id="skill{{ skill.id }}">
                     <label class="form-check-label" for="skill{{ skill.id }}">{{ skill.name }}</label>
                   </div>
@@ -195,6 +196,18 @@
       {% else %}
         map.setView([33.7490, -84.3880], 9);
       {% endif %}
+    </script>
+
+    <script>
+      document.getElementById('jobSkillSearch').addEventListener('keyup', function() {
+          let filter = this.value.toLowerCase();
+          let items = document.getElementsByClassName('skill-item');
+          
+          for (let i = 0; i < items.length; i++) {
+              let label = items[i].textContent || items[i].innerText;
+              items[i].style.display = label.toLowerCase().indexOf(filter) > -1 ? "" : "none";
+          }
+      });
     </script>
 
     <!-- Listings -->

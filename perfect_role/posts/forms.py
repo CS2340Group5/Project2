@@ -13,7 +13,7 @@ class JobPostForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         kwargs.setdefault('error_class', CustomErrorList)
         super(JobPostForm, self).__init__(*args, **kwargs)
-        for fieldname in ['name', 'position', 'skills', 'salary_min', 'location']:
+        for fieldname in ['name', 'position', 'salary_min', 'location']:
             self.fields[fieldname].help_text = None
             self.fields[fieldname].widget.attrs.update({'class': 'form-control'})
 
@@ -22,6 +22,10 @@ class JobPostForm(forms.ModelForm):
             self.fields[fieldname].widget.attrs.update({'class': 'form-check-input'})
             
         self.fields['location'].widget.attrs.update({'placeholder': 'e.g. Atlanta, GA'})
+        
+        self.fields['skills'].widget = forms.CheckboxSelectMultiple()
+        self.fields['skills'].widget.choices = self.fields['skills'].choices
+        self.fields['skills'].help_text = None
 
     class Meta:
         model = JobPost

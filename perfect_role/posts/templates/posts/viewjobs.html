@@ -16,6 +16,7 @@
               <a href="{% url 'posts.candidate_recommendations' id=job.id %}" class="btn btn-sm btn-outline-secondary">Recommended Candidates</a>
               <a href="{% url 'posts.pipeline' id=job.id %}" class="btn btn-sm btn-outline-dark">Pipeline</a>
               <a href="{% url 'posts.editjob' id=job.id %}" class="btn btn-sm btn-outline-primary">Edit</a>
+              <a href="{% url 'posts.delete_post' id=job.id %}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Are you sure you want to delete this job post?');">Delete</a>
             </span>
           </div>
           <div class="card-body">
