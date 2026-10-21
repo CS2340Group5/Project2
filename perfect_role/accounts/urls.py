@@ -17,4 +17,5 @@ urlpatterns = [
     path('profile/links/add/', views.add_link, name='accounts.add_link'),
     path('profile/links/<int:id>/delete/', views.delete_link, name='accounts.delete_link'),
     path('candidatesearch/', views.candidatesearch, name='accounts.candidatesearch'),
+    path('candidatesearch/save/', views.save_search, name='accounts.save_search'),
 ]

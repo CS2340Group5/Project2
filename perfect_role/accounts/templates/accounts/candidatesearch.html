@@ -15,6 +15,7 @@
         <hr />
         <div class="card-text">
           <form method="GET">
+            {% csrf_token %}
             <div class="row">
               <div class="col-5">
                 <div class="input-group col-6">
@@ -33,6 +34,9 @@
               </div>
               <div class="col-auto">
                 <button class="btn bg-dark text-white" type="submit">Search</button>
+                {% if template_data.save_available %}
+                  <a class="btn bg-dark text-white" href="{% url 'accounts.candidatesearch' %}?load=1">Load Filters{% if template_data.new_matches %} <span class="badge bg-success">{{ template_data.new_matches }} new</span>{% endif %}</a>
+                {% endif %}
               </div>
             </div>
             <div class="collapse mt-3" id="filterPanel">
@@ -46,7 +50,7 @@
                                     <b class="text-start">Experience Type</b>
                                     {% for kind in template_data.kinds %}
                                     <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="kinds" value="{{ kind.name }}" id="kind{{ kind.id }}">
+                                        <input class="form-check-input" type="checkbox" name="kinds" value="{{ kind.name }}" id="kind{{ kind.id }}" {% if kind.name in template_data.selected_kinds %}checked{% endif %}>
                                         <label class="form-check-label" for="kind{{ kind.id }}">{{ kind.name }}</label>
                                     </div>
                                     {% endfor %}
@@ -64,7 +68,7 @@
                                     <div id="skillsContainer" class="border rounded p-2" style="max-height: 200px; overflow-y: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 0.25rem 1rem;">
                                         {% for skill in template_data.skills %}
                                         <div class="form-check skill-item">
-                                            <input class="form-check-input" type="checkbox" name="skills" value="{{ skill.name }}" id="skill{{ skill.id }}">
+                                            <input class="form-check-input" type="checkbox" name="skills" value="{{ skill.name }}" id="skill{{ skill.id }}" {% if skill.name in template_data.selected_skills %}checked{% endif %}>
                                             <label class="form-check-label" for="skill{{ skill.id }}">{{ skill.name }}</label>
                                         </div>
                                         {% endfor %}
@@ -73,6 +77,7 @@
                                 </div>
                             </div>
                         </div>
+                        <button class="btn bg-dark text-white" type="submit" formaction="{% url 'accounts.save_search' %}" formmethod="post">Save Filters</button>
                 </div>
               </div>
             </div>
