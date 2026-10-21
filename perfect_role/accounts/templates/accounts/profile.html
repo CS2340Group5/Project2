@@ -20,7 +20,7 @@
             {% if template_data.is_owner %}
             <p><b>Email:</b> {{ template_data.profile_user.email }} <span class="text-muted">(Only you can see this)</span></p>
             {% endif %}
-            {% if template_data.profile_user.location %}
+            {% if template_data.profile_user.location and (template_data.is_owner or template_data.profile_user.show_location) %}
             <p><b>Location:</b> {{ template_data.profile_user.location }}</p>
             {% if template_data.is_owner and template_data.profile_user.commute_radius %}
             <p><b>Commute radius:</b> {{ template_data.profile_user.commute_radius }} miles</p>

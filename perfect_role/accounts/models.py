@@ -40,6 +40,7 @@ class GenericUser(AbstractUser):
     is_public = models.BooleanField(default=True)
     show_education = models.BooleanField(default=True)
     show_experience = models.BooleanField(default=True)
+    show_location = models.BooleanField(default=True)
     show_links = models.BooleanField(default=True)
     def __str__(self):
         return f"{super().__str__()} - Role: {self.role}"

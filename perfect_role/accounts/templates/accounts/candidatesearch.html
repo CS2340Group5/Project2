@@ -214,7 +214,7 @@
                   {% endif %}
                   <b>Skills: </b>{{ candidate.skills_toString }}<br />
                   {% if candidate.show_location %}
-                  <b>Location: </b>{{ candidate.location }}
+                  <p class="mb-1"><b>Location: </b>{{ candidate.location }}</p>
                   {% endif %}
                   <a href="{% url 'accounts.profile_view' candidate.id %}" class="btn-pr-gold mt-3">View Profile</a>
                 </div>

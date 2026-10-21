@@ -97,11 +97,12 @@ class SocialLinkForm(forms.ModelForm):
 class PrivacyForm(forms.ModelForm):
     class Meta:
         model = GenericUser
-        fields = ('is_public', 'show_education', 'show_experience', 'show_links')
+        fields = ('is_public', 'show_education', 'show_experience', 'show_location', 'show_links')
         labels = {
             'is_public': 'Profile visible to recruiters',
             'show_education': 'Show education',
             'show_experience': 'Show work experience',
+            'show_location': "Show location",
             'show_links': 'Show links',
         }
 
