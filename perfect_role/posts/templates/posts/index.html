@@ -11,33 +11,35 @@
         <h2>Job Listings</h2>
         <hr />
         <p class="card-text">
+          <div class="card pr-card">
           <form method="GET">
+            <div style="margin: 20px">
             <div class="row">
-              <div class="col-5">
+              <div class="col-12 col-md-8 col-lg-5">
                 <div class="input-group col-6">
-                  <div class="input-group-text" style="background-color: #75c1ff"><i class="fa-solid fa-magnifying-glass"></i></div>
+                  <div class="input-group-text" style="background-color: var(--gold); border: 2px solid var(--ink);"><i class="fa-solid fa-magnifying-glass"></i></div>
                   <input type="text" class="form-control" name="search" placeholder="Job Title">
-                  <button class="input-group-text" type="button" data-bs-toggle="collapse" data-bs-target="#filterPanel" style="background-color: #FFFFFF">  
+                  <button class="input-group-text" type="button" data-bs-toggle="collapse" data-bs-target="#filterPanel" style="background-color: #FFFFFF; border: 2px solid var(--ink);">  
                     <i class="fa-solid fa-filter"></i>
                   </button>
                 </div>
               </div>
-              <div class="col-2">
+              <div class="col-4 col-md-4 col-lg-2">
                 <div class="input-group col-6">
-                  <div class="input-group-text" style="background-color: #75c1ff"><i class="fa-solid fa-location-dot"></i></div>
+                  <div class="input-group-text" style="background-color: var(--gold); border: 2px solid var(--ink);"><i class="fa-solid fa-location-dot"></i></div>
                   <input type="number" class="form-control" name="zip" placeholder="Zip Code">
                 </div>
               </div>
               {% if user.is_authenticated and user.coordinates %}
-              <div class="col-2">
+              <div class="col-4 col-md-4 col-lg-2">
                 <div class="input-group col-6">
-                  <div class="input-group-text" style="background-color: #75c1ff"><i class="fa-solid fa-route"></i></div>
+                  <div class="input-group-text" style="background-color: var(--gold); border: 2px solid var(--ink);"><i class="fa-solid fa-route"></i></div>
                   <input type="number" class="form-control" name="distance" placeholder="Within miles" min="1" value="{{ template_data.distance|default:'' }}">
                 </div>
               </div>
               {% endif %}
               <div class="col-auto">
-                <button class="btn bg-dark text-white" type="submit">Search</button>
+                <button class="btn-pr ml-4" type="submit">Search</button>
               </div>
             </div>
             <div class="collapse mt-3" id="filterPanel">
@@ -89,33 +91,59 @@
               </div>
             </div>
           </form>
-
-          <div class="row mt-4">
-            <div class="col-12">
-              <div id="jobMap" style="height: 400px; width: 100%; z-index: 1;" class="rounded shadow border"></div>
-            </div>
+          </div>
           </div>
 
-          <script>
-            var map = L.map('jobMap');
+    <div class="row mt-4">
+      <div class="col-3">
+      <button class="btn-pr-sm collapse-btn">Open Map</button>
+      </div>
+      <div class="col-12">
+        <div id="jobMap" class="pr-map map-collapse"></div>
+      </div>
+    </div>
 
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-              maxZoom: 19,
-              attribution: '© OpenStreetMap'
-            }).addTo(map);
+    <script>
+      const btn = document.querySelector('.collapse-btn')
+      const mapDiv = document.querySelector('.map-collapse')
+      const resizeObserver = new ResizeObserver(() => {
+        map.invalidateSize();
+      });
 
-            {% for post in template_data.postings %}
-              {% if post.coordinates %}
-                var lat = {{ post.coordinates.y }};
-                var lng = {{ post.coordinates.x }};
-                var marker = L.marker([lat, lng]).addTo(map);
-                
-                var popupContent = `
+      // Toggle display style
+      btn.addEventListener('click', function() {
+        if (mapDiv.style.display === 'block') {
+          mapDiv.style.display = 'none';
+          btn.textContent = "Open Map";
+          resizeObserver.observe(mapDiv);
+        } else {
+          mapDiv.style.display = 'block';
+          btn.textContent = "Hide Map";
+          resizeObserver.observe(mapDiv);
+        }
+      })
+    </script>
+
+    <script>
+      var map = L.map('jobMap');
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '© OpenStreetMap'
+      }).addTo(map);
+
+      {% for post in template_data.postings %}
+        {% if post.coordinates %}
+          var lat = {{ post.coordinates.y }};
+          var lng = {{ post.coordinates.x }};
+          var marker = L.marker([lat, lng]).addTo(map);
+
+          var popupContent =`
                   <div style="min-width: 220px;">
                     {% if user.is_authenticated %}
                       <a href="{% url 'posts.bookmarktoggle' id=post.id %}" class="btn float-end p-0" style="background-color: transparent; border: none; color: #212529 !important;">
                         {% if post.id in template_data.bookmarks %}
-                          <i class="fa-solid fa-bookmark" style="color: #75c1ff !important; font-size: 1.2rem;"></i>
+                          <i class="fa-solid fa-bookmark" style="color: #d62839 !important; font-size: 1.2rem;"></i>
                         {% else %}
                           <i class="fa-solid fa-bookmark" style="color: #212529 !important; font-size: 1.2rem;"></i>
                         {% endif %}
@@ -131,120 +159,122 @@
                     {% if post.visa_sponsorship %}<b> Has Visa Sponsorship</b><br />{% endif %}
                     {% if post.is_remote %}<b> Is Remote </b><br />{% endif %}
                     
-                    <button type="button" style="background-color: #75c1ff; border: none;" 
-                      class="btn btn-primary btn-sm mt-3 w-100" data-bs-toggle="modal" data-bs-target="#submitapplication{{ post.id }}">
+                    <button type="button"
+                      class="btn-pr btn-pr-sm mt-3 w-100" data-bs-toggle="modal" data-bs-target="#submitapplication{{ post.id }}">
                       Apply
                     </button>
                   </div>
                 `;
-                
-                marker.bindPopup(popupContent);
-              {% endif %}
-            {% endfor %}
 
-            {% if user.is_authenticated and user.coordinates %}
-              var userLat = {{ user.coordinates.y }};
-              var userLng = {{ user.coordinates.x }};
-              
-              map.setView([userLat, userLng], 10);
-              
-              L.circleMarker([userLat, userLng], {
-                radius: 8,
-                fillColor: "#007bff",
-                color: "#ffffff",
-                weight: 2,
-                opacity: 1,
-                fillOpacity: 0.8
-              }).addTo(map).bindPopup("Your Location");
+          marker.bindPopup(popupContent);
+        {% endif %}
+      {% endfor %}
 
-              {% if template_data.distance %}
-              L.circle([userLat, userLng], {
-                radius: {{ template_data.distance }} * 1609.34,
-                color: "#007bff",
-                weight: 1,
-                fillOpacity: 0.08
-              }).addTo(map);
-              {% endif %}
-              
-            {% else %}
-              map.setView([33.7490, -84.3880], 9); 
-            {% endif %}
-          </script>
+      {% if user.is_authenticated and user.coordinates %}
+        var userLat = {{ user.coordinates.y }};
+        var userLng = {{ user.coordinates.x }};
 
-          <div class="row mt-4 gy-3"> 
-            {% for post in template_data.postings %}
-              {% if post.id not in template_data.applied %}
-              <div class="col-md-6 col-lg-4">
-                <div class="card shadow p-3 h-100 rounded" style="border-left: 6px solid #75c1ff;">
-                  <div class="card-body d-flex flex-column">
-                    <div class="card-title">
-                      {% if user.is_authenticated %}
-                          <a href="{% url 'posts.bookmarktoggle' id=post.id %}" class="btn float-end" style="background-color: #FFFFFF">
-                            {% if post.id in template_data.bookmarks %}
-                              <i class="fa-solid fa-bookmark" style="color: #75c1ff"></i>
-                            {% else %} 
-                              <i class="fa-solid fa-bookmark"></i>
-                            {% endif %}
-                          </a>
+        map.setView([userLat, userLng], 10);
+
+        L.circleMarker([userLat, userLng], {
+          radius: 8,
+          fillColor: "#d62839",
+          color: "#ffffff",
+          weight: 2,
+          opacity: 1,
+          fillOpacity: 0.9
+        }).addTo(map).bindPopup("Your Location");
+
+        {% if template_data.distance %}
+        L.circle([userLat, userLng], {
+          radius: {{ template_data.distance }} * 1609.34,
+          color: "#d62839",
+          weight: 1,
+          fillOpacity: 0.08
+        }).addTo(map);
+        {% endif %}
+
+      {% else %}
+        map.setView([33.7490, -84.3880], 9);
+      {% endif %}
+    </script>
+    
+    <hr />
+    <div class="row mt-3 gy-4">
+      {% for post in template_data.postings %}
+        {% if post.id not in template_data.applied %}
+        <div class="col-md-6 col-lg-4">
+          <div class="card pr-card pr-job h-100">
+            <div class="card-body d-flex flex-column p-4">
+              <div class="card-title">
+                {% if user.is_authenticated %}
+                    <a href="{% url 'posts.bookmarktoggle' id=post.id %}" class="pr-icon-btn float-end" style="background-color: #FFFFFF">
+                      {% if post.id in template_data.bookmarks %}
+                        <i class="fa-solid fa-bookmark" style="color: var(--gold)"></i>
+                      {% else %} 
+                        <i class="fa-solid fa-bookmark" style="color: var(--ink)"></i>
                       {% endif %}
-                      <h5> {{ post.name }} </h5>
-                      <b>Position: </b>{{ post.position }}<br />
-                      <b>Salary: </b>${{post.salary_min}}.00<br />
-                      <b>Skills: </b>{{ post.skills_toString }}<br />
-                      <b>Location: </b>{{ post.location }}<br />
-                      {% if post.distance %}
-                        <b>Distance: </b>{{ post.distance.mi|floatformat:1 }} miles<br />
-                      {% endif %}
-                      {% if post.visa_sponsorship %}
-                        <b> Has Visa Sponsorship</b><br />
-                      {% endif %}
-                      {% if post.is_remote %}
-                        <b> Is Remote </b>
-                      {% endif %}
-                    </div>
-                      <button type="button" style="background-color: #75c1ff;" 
-                      class="btn btn-primary mt-auto align-self-end" data-bs-toggle="modal" data-bs-target="#submitapplication{{ post.id }}">
-                        Apply
-                      </button>
-                  </div>
+                    </a>
+                {% endif %}
+                <h5 class="pr-job-title">{{ post.name }}</h5>
+                <b>Position: </b>{{ post.position }}<br />
+                <b>Salary: </b><span class="pr-salary">${{post.salary_min}}</span><br />
+                <b>Skills: </b>{{ post.skills_toString }}<br />
+                <b>Location: </b>{{ post.location }}<br />
+                {% if post.distance %}<b>Distance: </b>{{ post.distance.mi|floatformat:1 }} miles<br />{% endif %}
+                <div class="mt-2">
+                  {% if post.visa_sponsorship %}
+                    <span class="pr-chip pr-chip-green"><i class="fa-solid fa-passport me-1"></i>Has Visa Sponsorship</span>
+                  {% endif %}
+                  {% if post.is_remote %}
+                    <span class="pr-chip pr-chip-ink"><i class="fa-solid fa-house-laptop me-1"></i>Is Remote</span>
+                  {% endif %}
                 </div>
               </div>
-              <div id="submitapplication{{ post.id }}" class="modal fade" role="dialog">
-                <div class="modal-dialog modal-lg">
-                  <div class="modal-content">
-                    <form method="POST" action="{% url 'posts.submitapplication' id=post.id %}">
-                    {% csrf_token %}
-                    <div class="modal-body">
-                      <h2>{{ post.name }}</h2>
-                      <b>Position: </b>{{ post.position }}<br />
-                      <b>Salary: </b>${{post.salary_min}}.00<br />
-                      <b>Skills: </b>{{ post.skills_toString }}<br />
-                      <b>Location: </b>{{ post.location }}<br />
-                      {% if post.visa_sponsorship %}
-                        <b> Has Visa Sponsorship</b><br />
-                      {% endif %}
-                      {% if post.is_remote %}
-                        <b> Is Remote </b><br />
-                      {% endif %}
-                      <div class="col-auto">
-                        <div class="input-group col-auto">
-                          <textarea class="form-control" name="note" placeholder="Add Note..." rows="4" maxlength="500"></textarea>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div class="modal-footer">
-                      <button type="submit" class="btn btn-info">Submit</button>
-                      <button type="button" class="btn btn-info" data-bs-dismiss="modal">Close</button>
-                    </div>
-                    </form>
-                  </div>
-                </div>
+              <button type="button"
+                class="btn-pr mt-auto align-self-end" data-bs-toggle="modal" data-bs-target="#submitapplication{{ post.id }}">
+                <i class="fa-solid fa-dice me-1"></i> Apply
+              </button>
+            </div>
+          </div>
+        </div>
+        <div id="submitapplication{{ post.id }}" class="modal fade" role="dialog">
+          <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+              <form method="POST" action="{% url 'posts.submitapplication' id=post.id %}" class="pr-form">
+              {% csrf_token %}
+              <div class="modal-body p-4">
+                <div class="pr-modal-tag mb-1"><i class="fa-solid fa-dice me-1"></i> Take your chance</div>
+                <h2>{{ post.name }}</h2>
+                <b>Position: </b>{{ post.position }}<br />
+                <b>Salary: </b>${{post.salary_min}}.00<br />
+                <b>Skills: </b>{{ post.skills_toString }}<br />
+                <b>Location: </b>{{ post.location }}<br />
+                {% if post.visa_sponsorship %}
+                  <b> Has Visa Sponsorship</b><br />
+                {% endif %}
+                {% if post.is_remote %}
+                  <b> Is Remote </b><br />
+                {% endif %}
+                <textarea class="form-control mt-3" name="note" placeholder="Add Note..." rows="4" maxlength="500"></textarea>
               </div>
-              {% endif %}
-            {% empty %}
-            <p>No positions available</p>
-            {% endfor %}
+              <div class="modal-footer">
+                <button type="submit" class="btn-pr">Submit</button>
+                <button type="button" class="btn-pr-ink" data-bs-dismiss="modal">Close</button>
+              </div>
+              </form>
+            </div>
+          </div>
+        </div>
+        {% endif %}
+      {% empty %}
+      <div class="col-12">
+        <div class="pr-empty">
+          <i class="fa-solid fa-dice-one fa-2x mb-2" style="color: var(--gold)"></i>
+          <p class="mb-0">No positions available</p>
+        </div>
+      </div>
+      {% endfor %}
 
           </div>
         </p>

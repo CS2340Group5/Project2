@@ -81,7 +81,7 @@ hr {
 .pr-brand:hover .pr-logo { animation: pr-wobble .7s ease; }
 
 /* Buttons */
-.btn-pr, .btn-pr-gold, .btn-pr-ink, .btn-pr-ghost {
+.btn-pr, .btn-pr-gold, .btn-pr-ink, .btn-pr-sm {
   display: inline-block;
   font-weight: 700;
   border: 2px solid var(--ink);
@@ -216,6 +216,11 @@ hr {
   border: 3px solid var(--ink);
   border-radius: 18px;
   box-shadow: var(--shadow-hard);
+}
+
+/*By Default: hide map*/
+.map-collapse {
+  display: none;
 }
 
 .pr-skill-grid { display: flex; flex-wrap: wrap; gap: .5rem; }
