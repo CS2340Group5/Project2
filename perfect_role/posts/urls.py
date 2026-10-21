@@ -15,4 +15,7 @@ urlpatterns = [
     path('candidates/<int:id>/', views.candidate_recommendations, name='posts.candidate_recommendations'),
     path('application/<int:id>/move/', views.move_application, name='posts.move_application'),
     path('viewpostapplications/<int:id>/', views.viewpostapplications, name = 'posts.view_post_applications'),
+    path('requestskill/', views.request_skill, name='posts.request_skill'),
+    path('reviewskills/', views.review_skills, name='posts.review_skills'),
+    path('deletejob/<int:id>/', views.delete_post, name='posts.delete_post'),
 ]

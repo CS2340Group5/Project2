@@ -1,7 +1,7 @@
 from django.shortcuts import render
-from .models import JobPost, Skill, Bookmark, Application
+from .models import JobPost, Skill, Bookmark, Application, SkillRequest
 from .forms import JobPostForm, CustomErrorList
-from django.http import HttpResponseForbidden
+from django.http import HttpResponseForbidden, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.db.models import Count
@@ -11,6 +11,7 @@ from django.contrib.gis.geos import Point
 from django.contrib.gis.db.models.functions import Distance
 from django.contrib.gis.measure import D
 from accounts.models import GenericUser
+import json
 
 # view jobs
 def index(request):
@@ -23,6 +24,8 @@ def index(request):
     visa = request.GET.get('visa')
     location = request.GET.get('location')
     distance = request.GET.get('distance')
+    if 'distance' not in request.GET and request.user.is_authenticated:
+        distance = request.user.commute_radius
 
     if search:
         postings = postings.filter(name__icontains=search)
@@ -236,3 +239,48 @@ def candidate_recommendations(request, id):
     template_data['post'] = post
     template_data['candidates'] = candidates
     return render(request, 'posts/candidate_recommendations.html', {'template_data': template_data})
+
+@login_required
+def request_skill(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            skill_name = data.get('skill_name', '').strip()
+            if skill_name:
+                SkillRequest.objects.create(name=skill_name, requested_by=request.user)
+                return JsonResponse({'status': 'success'})
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+    return JsonResponse({'status': 'invalid'}, status=405)
+
+@login_required
+def review_skills(request):
+    if request.user.role != 'ADMIN' and not request.user.is_superuser: 
+        return HttpResponseForbidden("Only administrators can review skill requests.")
+
+    if request.method == 'POST':
+        request_id = request.POST.get('request_id')
+        action = request.POST.get('action')
+        skill_request = get_object_or_404(SkillRequest, id=request_id)
+
+        if action == 'approve':
+            Skill.objects.get_or_create(name=skill_request.name)
+            skill_request.delete() 
+        elif action == 'deny':
+            skill_request.delete()
+
+        return redirect('posts.review_skills')
+
+    pending_requests = SkillRequest.objects.filter(is_approved=False)
+    template_data = {'title': 'Review Skill Requests', 'requests': pending_requests}
+    
+    return render(request, 'posts/reviewskills.html', {'template_data': template_data})
+
+@login_required
+def delete_post(request, id):
+    post = get_object_or_404(JobPost, pk=id)
+    if not request.user.role == 'RECRUITER' or not post.recruiter == request.user:
+        return HttpResponseForbidden("Only the recruiter who made this post can access this page.")
+    
+    post.delete()
+    return redirect('posts.viewjobs')

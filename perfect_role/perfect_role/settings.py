@@ -42,7 +42,8 @@ INSTALLED_APPS = [
     'home',
     'accounts',
     'posts',
-    'exports'
+    'exports',
+    'messaging'
 ]
 
 MIDDLEWARE = [
@@ -129,11 +130,27 @@ STATIC_URL = 'static/'
 # Email
 # https://docs.djangoproject.com/en/6.1/topics/email/#topic-email-configuration
 
-MAILERS = {
-    'default': {
-        'BACKEND': 'django.core.mail.backends.console.EmailBackend',
-    },
-}
+if os.environ.get("GMAIL_APP_PASSWORD"):
+    MAILERS = {
+        'default': {
+            'BACKEND': 'django.core.mail.backends.smtp.EmailBackend',
+            'OPTIONS': {
+                'host': 'smtp.gmail.com',
+                'port': 587,
+                'username': 'noreplyperfectrole@gmail.com',
+                'password': os.environ.get('GMAIL_APP_PASSWORD'),
+                'use_tls': True,
+            },
+        },
+    }
+else:
+    MAILERS = {
+        'default': {
+            'BACKEND': 'django.core.mail.backends.console.EmailBackend',
+        },
+    }
+
+DEFAULT_FROM_EMAIL = "Perfect Role <noreplyperfectrole@gmail.com>"
 
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'perfect_role/static/')]
 

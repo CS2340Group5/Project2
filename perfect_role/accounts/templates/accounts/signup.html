@@ -11,6 +11,11 @@
             <form method="POST">
               {% csrf_token %}
               {{ template_data.form.as_p }}
+              <style>
+              form:not(:has(input[name="role"][value="APPLICANT"]:checked)) p:has(#id_email) {
+                display: none;
+              }
+            </style>
               <button type="submit"
                 class="btn bg-dark text-white">Sign Up
               </button>

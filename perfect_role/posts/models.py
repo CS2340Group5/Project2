@@ -53,3 +53,11 @@ class Application(models.Model):
 
     def __str__(self):
         return self.user.username + ' - ' + self.post.name
+
+class SkillRequest(models.Model):
+    name = models.CharField(max_length=255)
+    requested_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
+    is_approved = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"{self.name} (Requested by: {self.requested_by})"

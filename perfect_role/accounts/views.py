@@ -1,5 +1,5 @@
 from .forms import GenericUserCreationForm, CustomErrorList, ProfileForm, SocialLinkForm, PrivacyForm, WorkExperienceForm, EducationForm
-from .models import SocialLink, GenericUser, ExperienceType, WorkExperience, School, Education
+from .models import SocialLink, GenericUser, ExperienceType, WorkExperience, School, Education, SearchQuery
 from posts.models import Skill
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
@@ -10,6 +10,9 @@ from django.contrib.auth import login as auth_login, authenticate, logout as aut
 from django.contrib.auth.decorators import login_required
 from geopy.geocoders import Nominatim
 from django.contrib.gis.geos import Point
+from django.contrib.gis.db.models.functions import Distance
+from django.contrib.gis.measure import D
+from django.core.mail import send_mail
 
 
 def signup(request):
@@ -153,15 +156,8 @@ def remove_skill(request, id):
     request.user.skills.remove(skill)
     return redirect(reverse('accounts.edit_profile') + '#skills')
 
-@login_required
-def candidatesearch(request):
-    candidates = GenericUser.objects.filter(role='APPLICANT', is_public="True")
-    skills = request.GET.getlist('skills')
-    kinds = request.GET.getlist('kinds')
-    search = request.GET.get('search')
-    location = request.GET.get('location')
-    # ----WAITING FOR LOCATION IMPLEMENTATION----
-
+def filter_candidates(skills, kinds, search=None):
+    candidates = GenericUser.objects.filter(role='APPLICANT', is_public=True).exclude(is_superuser=True)
     if skills:
         candidates = candidates.filter(skills__name__in=skills).distinct()
     if kinds:
@@ -169,11 +165,39 @@ def candidatesearch(request):
     if search:
         candidates = candidates.filter(
             Q(experiences__company__icontains=search) | Q(experiences__description__icontains=search)).distinct()
+    return candidates
+
+@login_required
+def candidatesearch(request):
+    candidates = GenericUser.objects.filter(role='APPLICANT', is_public="True")
+    skills = request.GET.getlist('skills')
+    kinds = request.GET.getlist('kinds')
+    search = request.GET.get('search')
+
+    saved = SearchQuery.objects.filter(recruiter=request.user).first()
+    if saved and request.GET.get('load'):
+        skills = [s.name for s in saved.skills.all()]
+        kinds = [k.name for k in saved.experience.all()]
+        search = None
+        saved.matched_candidates.set(filter_candidates(skills, kinds))
+    candidates = filter_candidates(skills, kinds, search)
+    location = request.GET.get('location')
+    if location:
+        candidates = candidates.filter(location__icontains=location)
 
     template_data = {}
     template_data['candidates'] = candidates
     template_data['skills'] = Skill.objects.all()
     template_data['kinds'] = ExperienceType.objects.all()
+
+    if saved:
+        saved_skills = [s.name for s in saved.skills.all()]
+        saved_kinds = [k.name for k in saved.experience.all()]
+        saved_results = filter_candidates(saved_skills, saved_kinds)
+        template_data['save_available'] = True
+        template_data['new_matches'] = saved_results.exclude(id__in=saved.matched_candidates.all()).count()
+    template_data['selected_skills'] = skills
+    template_data['selected_kinds'] = kinds
     return render(request, 'accounts/candidatesearch.html', {'template_data': template_data})
 
 @login_required
@@ -215,3 +239,16 @@ def remove_education(request, id):
     education = get_object_or_404(Education, id=id, user=request.user)
     education.delete()
     return redirect(reverse('accounts.edit_profile') + '#education')
+
+@login_required
+def save_search(request):
+    if request.method == 'POST' and request.user.role == GenericUser.Role.RECRUITER:
+        skills = request.POST.getlist('skills')
+        kinds = request.POST.getlist('kinds')
+
+        saved, _ = SearchQuery.objects.get_or_create(recruiter=request.user)
+        saved.skills.set(Skill.objects.filter(name__in=skills))
+        saved.experience.set(ExperienceType.objects.filter(name__in=kinds))
+        saved.matched_candidates.set(filter_candidates(skills, kinds))
+
+    return redirect('accounts.candidatesearch')
