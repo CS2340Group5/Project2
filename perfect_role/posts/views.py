@@ -6,7 +6,10 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.db.models import Count
 from geopy.geocoders import Nominatim
+from geopy.exc import GeopyError
 from django.contrib.gis.geos import Point
+from django.contrib.gis.db.models.functions import Distance
+from django.contrib.gis.measure import D
 from accounts.models import GenericUser
 
 # view jobs
@@ -19,7 +22,7 @@ def index(request):
     remote = request.GET.get('remote')
     visa = request.GET.get('visa')
     location = request.GET.get('zip')
-
+    distance = request.GET.get('distance')
 
     if search:
         postings = postings.filter(name__icontains=search)
@@ -34,9 +37,14 @@ def index(request):
     if visa:
         postings = postings.filter(visa_sponsorship=True)
     if location:
-        postings = postings.filter(location=location)
+        postings = postings.filter(location__icontains=location)
+    if distance and request.user.is_authenticated and request.user.coordinates:
+        postings = postings.filter(coordinates__distance_lte=(request.user.coordinates, D(mi=distance)))
+    if request.user.is_authenticated and request.user.coordinates:
+        postings = postings.annotate(distance=Distance('coordinates', request.user.coordinates)).order_by('distance')
 
     template_data = {}
+    template_data['distance'] = distance
     template_data['bookmarks'] = []
     template_data['applied'] = []
     if request.user.is_authenticated:
@@ -104,8 +112,11 @@ def postjobs(request):
         if form.is_valid():
             address = form.cleaned_data.get('location')
             geolocator = Nominatim(user_agent="perfect_role")
-            location_data = geolocator.geocode(address)
-            
+            try:
+                location_data = geolocator.geocode(address)
+            except GeopyError:
+                location_data = None
+
             if not location_data:
                 form.add_error('location', 'Could not find that location on map, please try a different address.')
                 template_data['form'] = form
@@ -141,8 +152,21 @@ def editjob(request, id):
         template_data['form'] = JobPostForm(instance=post)
         return render(request, 'posts/editjob.html', {'template_data': template_data})
     elif request.method == 'POST':
+        old_location = post.location
         form = JobPostForm(request.POST, error_class=CustomErrorList, instance=post)
         if form.is_valid():
+            address = form.cleaned_data.get('location')
+            if address != old_location or post.coordinates is None:
+                geolocator = Nominatim(user_agent="perfect_role")
+                try:
+                    location_data = geolocator.geocode(address)
+                except GeopyError:
+                    location_data = None
+                if not location_data:
+                    form.add_error('location', 'Could not find that location on map, please try a different address.')
+                    template_data['form'] = form
+                    return render(request, 'posts/editjob.html', {'template_data': template_data})
+                post.coordinates = Point(location_data.longitude, location_data.latitude, srid=4326)
             form.save()
             return redirect('posts.viewjobs')
         else:

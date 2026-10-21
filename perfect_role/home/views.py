@@ -1,5 +1,7 @@
 from django.shortcuts import render
 from posts.models import JobPost, Bookmark, Application, Skill
+from django.contrib.gis.db.models.functions import Distance
+from django.contrib.gis.measure import D
 
 def index(request):
     template_data = {}
@@ -14,6 +16,7 @@ def index(request):
         remote = request.GET.get('remote')
         visa = request.GET.get('visa')
         location = request.GET.get('zip')
+        distance = request.GET.get('distance')
 
         if search:
             postings = postings.filter(name__icontains=search)
@@ -28,7 +31,12 @@ def index(request):
         if visa:
             postings = postings.filter(visa_sponsorship=True)
         if location:
-            postings = postings.filter(location=location)
+            postings = postings.filter(location__icontains=location)
+        if distance and request.user.coordinates:
+            postings = postings.filter(coordinates__distance_lte=(request.user.coordinates, D(mi=distance)))
+        if request.user.coordinates:
+            postings = postings.annotate(distance=Distance('coordinates', request.user.coordinates)).order_by('distance')
+        template_data['distance'] = distance
 
     
         template_data['bookmarks'] = []
