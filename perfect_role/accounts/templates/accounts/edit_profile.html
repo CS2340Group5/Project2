@@ -4,6 +4,12 @@
   <div class="container">
     <div class="row justify-content-center">
       <div class="col-md-8">
+        {% if template_data.welcome %}
+        <div class="alert alert-success shadow">
+          <h4 class="alert-heading">Welcome to Perfect Role!</h4>
+          <p class="mb-0">Set up your profile before you start so recruiters can find you. Add a headline and your location below, then your skills, education, work experience, and links. You can come back and change any of this later.</p>
+        </div>
+        {% endif %}
         <div class="card shadow p-3 mb-4 rounded">
           <div class="card-body">
             <h2>Edit Profile</h2>
