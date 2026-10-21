@@ -92,3 +92,12 @@ class Education(models.Model):
     description = models.TextField(max_length=500, blank=True)
     def __str__(self):
         return f"{self.degree} at {self.school}"
+
+class SearchQuery(models.Model):
+    recruiter = models.ForeignKey(GenericUser, on_delete=models.CASCADE, related_name="saved")
+    skills = models.ManyToManyField('posts.Skill', blank=True)
+    experience = models.ManyToManyField(ExperienceType, blank=True)
+    matched_candidates = models.ManyToManyField(GenericUser, blank=True, related_name="matched_candidates")
+
+    def __str__(self):
+        return f"{self.recruiter.username}'s saved filters"
