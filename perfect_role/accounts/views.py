@@ -10,6 +10,7 @@ from django.contrib.auth import login as auth_login, authenticate, logout as aut
 from django.contrib.auth.decorators import login_required
 from geopy.geocoders import Nominatim
 from django.contrib.gis.geos import Point
+from django.core.mail import send_mail
 
 
 def signup(request):
@@ -214,3 +215,19 @@ def remove_education(request, id):
     education = get_object_or_404(Education, id=id, user=request.user)
     education.delete()
     return redirect(reverse('accounts.edit_profile') + '#education')
+
+@login_required
+def send_email(request, id):
+    applicant = get_object_or_404(GenericUser, id=id)
+
+    if applicant.email and request.user.role == GenericUser.Role.RECRUITER:
+        text = request.POST.get('message', '').strip()
+        if text:
+            send_mail(
+                f"New message from {request.user.username}",
+                f"{text}\n\n** Please note: This email is sent from an unattended mailbox. Replies will not be read **",
+                None,
+                [applicant.email]
+            )
+
+    return redirect('accounts.profile_view', id=applicant.id)

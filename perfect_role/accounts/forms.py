@@ -18,12 +18,14 @@ class CustomErrorList(ErrorList):
 class GenericUserCreationForm(UserCreationForm):
     class Meta(UserCreationForm.Meta):
         model = GenericUser
-        fields = UserCreationForm.Meta.fields + ('role',)
+        fields = UserCreationForm.Meta.fields + ('email', 'role',)
 
     ROLE_CHOICES = [
         ("APPLICANT", "Applicant"),
         ('RECRUITER', 'Recruiter')
     ]
+
+    email = forms.EmailField(required=False, label="Email")
     
     role = forms.ChoiceField(
         choices=ROLE_CHOICES, 
@@ -33,19 +35,53 @@ class GenericUserCreationForm(UserCreationForm):
     
     def __init__(self, *args, **kwargs):
         super(GenericUserCreationForm, self).__init__(*args, **kwargs)
-        for fieldname in ['username', 'password1', 'password2']:
+        for fieldname in ['username', 'email', 'password1', 'password2']:
             self.fields[fieldname].help_text = None
             self.fields[fieldname].widget.attrs.update({'class': 'form-control'})
+
+    def clean(self):
+        cleaned_input = super().clean()
+        role = cleaned_input.get('role')
+        email = cleaned_input.get('email', '').lower()
+
+        if role == GenericUser.Role.RECRUITER:
+            cleaned_input['email'] = ''
+        elif role == GenericUser.Role.APPLICANT:
+            if not email:
+                self.add_error('email', "Applicants must provide an email.")
+            elif GenericUser.objects.filter(email=email).exists():
+                self.add_error('email', "An account is already using this email.")
+            else:
+                cleaned_input['email'] = email
+
+        return cleaned_input
 
 class ProfileForm(forms.ModelForm):
     class Meta:
         model = GenericUser
-        fields = ('headline', 'location')
+        fields = ('email', 'headline', 'location')
 
     def __init__(self, *args, **kwargs):
         super(ProfileForm, self).__init__(*args, **kwargs)
+        if self.instance.role == GenericUser.Role.APPLICANT:
+            self.fields['email'].required = True
+        else:
+            del self.fields['email']
         for field in self.fields.values():
             field.widget.attrs.update({'class': 'form-control'})
+
+    def clean(self):
+        cleaned_input = super().clean()
+        email = cleaned_input.get('email')
+
+        if email:
+            email = email.lower()
+            if GenericUser.objects.filter(email=email).exclude(pk=self.instance.pk).exists():
+                self.add_error('email', "An account is already using this email.")
+            else:
+                cleaned_input['email'] = email
+                
+        return cleaned_input
 
 class SocialLinkForm(forms.ModelForm):
     class Meta:
