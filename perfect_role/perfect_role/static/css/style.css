@@ -218,11 +218,6 @@ hr {
   box-shadow: var(--shadow-hard);
 }
 
-/*By Default: hide map*/
-.map-collapse {
-  display: none;
-}
-
 .pr-skill-grid { display: flex; flex-wrap: wrap; gap: .5rem; }
 .pr-skill-grid .form-check {
   padding: .2rem .8rem .2rem 2rem;

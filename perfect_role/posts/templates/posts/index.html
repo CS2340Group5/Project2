@@ -43,83 +43,84 @@
               </div>
             </div>
             <div class="collapse mt-3" id="filterPanel">
-              <div class="card shadow p-3 mb-4 rounded">
-                <div class="card-body">
-                    <b class="text-start">Filters</b><br /><br />
-                      <div class="row align-items-center mb-3">
-                        <div class="col-3">
-                          <div class="input-group">      
-                            <div class="input-group-text" style="background-color: #75c1ff">$</div>
-                            <input type="number" class="form-control" name="salary" placeholder="Minimum Salary">
-                          </div>
-                        </div>
-                        <div class="col-4">
-                          <div class="input-group">      
-                            <div class="input-group-text" style="background-color: #75c1ff"><i class="fa-solid fa-briefcase"></i></div>
-                            <input class="form-control" name="position" placeholder="Position">
-                          </div>
-                        </div>
-                        <div class="col-auto">
-                          <div class="form-check">
-                            <input class="form-check-input" type="checkbox" name="visa" value="true" id="visa">
-                            <label class="form-check-label" for="visa">Visa Sponsorship</label>
-                          </div>
-                        </div>
-                        <div class="col-auto">
-                          <div class="form-check">
-                            <input class="form-check-input" type="checkbox" name="remote" value="true" id="remote">
-                            <label class="form-check-label" for="remote">Is Remote</label>
-                          </div>
-                        </div>
-                      </div>
-                    <br />
-                    <button class="btn bg-dark text-white" type="button" data-bs-toggle="collapse" data-bs-target="#skillsPanel">Skills</button><br /><br />
-                        <div class="collapse mt-0" id="skillsPanel">
-                            <div class="card shadow p-3 mb-4 rounded" style="width: 800px">
-                                <div class="card-body">
-                                    <b class="text-start">Skills</b>
-                                    {% for skill in template_data.skills %}
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="skills" value="{{ skill.name }}" id="skill{{ skill.id }}">
-                                        {{ skill.name }}
-                                    </div>
-                                    {% endfor %}
-                                </div>
-                            </div>
-                        </div>
+            <div class="p-3 rounded" style="background: rgba(23,20,31,.06); border: 2px dashed rgba(23,20,31,.3)">
+              <b class="text-start d-block mb-3">Filters</b>
+              <div class="row align-items-center g-3 mb-3">
+                <div class="col-12 col-md-4">
+                  <div class="input-group">
+                    <div class="input-group-text" style="background-color: var(--gold); border: 2px solid var(--ink)">$</div>
+                    <input type="number" class="form-control" name="salary" placeholder="Minimum Salary">
+                  </div>
+                </div>
+                <div class="col-12 col-md-4">
+                  <div class="input-group">
+                    <div class="input-group-text" style="background-color: var(--gold); border: 2px solid var(--ink)"><i class="fa-solid fa-briefcase"></i></div>
+                    <input class="form-control" name="position" placeholder="Position">
+                  </div>
+                </div>
+                <div class="col-auto">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="visa" value="true" id="visa">
+                    <label class="form-check-label" for="visa">Visa Sponsorship</label>
+                  </div>
+                </div>
+                <div class="col-auto">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="remote" value="true" id="remote">
+                    <label class="form-check-label" for="remote">Is Remote</label>
+                  </div>
+                </div>
+              </div>
+              <button class="btn-pr-ink btn-pr-sm" type="button" data-bs-toggle="collapse" data-bs-target="#skillsPanel">
+                <i class="fa-solid fa-chevron-down me-1"></i> Skills
+              </button>
+              <div class="collapse mt-3" id="skillsPanel">
+                <b class="text-start d-block mb-2">Skills</b>
+                <div class="pr-skill-grid">
+                  {% for skill in template_data.skills %}
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="skills" value="{{ skill.name }}" id="skill{{ skill.id }}">
+                    <label class="form-check-label" for="skill{{ skill.id }}">{{ skill.name }}</label>
+                  </div>
+                  {% endfor %}
                 </div>
               </div>
             </div>
+          </div>
           </form>
           </div>
           </div>
 
     <div class="row mt-4">
       <div class="col-3">
-      <button class="btn-pr-sm collapse-btn">Open Map</button>
+      <button class="btn-pr-sm collapse-btn mb-2" data-bs-toggle="collapse" data-bs-target="#map">Open Map</button>
       </div>
-      <div class="col-12">
+      <div class="col-12 collapse" id="map">
         <div id="jobMap" class="pr-map map-collapse"></div>
       </div>
     </div>
 
+    <!-- Hide Map Script (must reload map div size)
+     Req: collapse-btn class on button to do the collapsing
+          map-collapse class on div with the map connected-->
     <script>
       const btn = document.querySelector('.collapse-btn')
       const mapDiv = document.querySelector('.map-collapse')
       const resizeObserver = new ResizeObserver(() => {
         map.invalidateSize();
       });
+      let collapsed = true;
 
       // Toggle display style
       btn.addEventListener('click', function() {
-        if (mapDiv.style.display === 'block') {
-          mapDiv.style.display = 'none';
+        if (!collapsed) {
           btn.textContent = "Open Map";
           resizeObserver.observe(mapDiv);
+          collapsed = !collapsed
         } else {
-          mapDiv.style.display = 'block';
           btn.textContent = "Hide Map";
           resizeObserver.observe(mapDiv);
+          collapsed = !collapsed
         }
       })
     </script>
