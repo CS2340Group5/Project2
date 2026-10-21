@@ -8,27 +8,28 @@
         <hr />
         
         {% for job in template_data %}
-        <div class="card mb-4">
+        <div class="card pr-card mb-4">
           <div class="card-header d-flex justify-content-between align-items-center">
-            <span>Job #{{ job.id }} - {{ job.name }}</span>
+            <h2><span>Job #{{ job.id }} - {{ job.name }}</span></h2>
             <span>
-              <a href="{% url 'posts.view_post_applications' id=job.id %}" class="btn btn-sm btn-outline-success">View Applications</a>
-              <a href="{% url 'posts.candidate_recommendations' id=job.id %}" class="btn btn-sm btn-outline-secondary">Recommended Candidates</a>
-              <a href="{% url 'posts.pipeline' id=job.id %}" class="btn btn-sm btn-outline-dark">Pipeline</a>
-              <a href="{% url 'posts.editjob' id=job.id %}" class="btn btn-sm btn-outline-primary">Edit</a>
+              <a href="{% url 'posts.view_post_applications' id=job.id %}" class="btn btn-pr-sm btn-outline-success"><h6>View Applications</h6></a>
+              <a href="{% url 'posts.candidate_recommendations' id=job.id %}" class="btn btn-pr-sm btn-outline-secondary"><h6>Recommended Candidates</h6></a>
+              <a href="{% url 'posts.pipeline' id=job.id %}" class="btn btn-pr-sm btn-outline-dark"><h6>Pipeline</h6></a>
+              <a href="{% url 'posts.editjob' id=job.id %}" class="btn btn-pr-sm btn-outline-primary"><h6>Edit</h6></a>
             </span>
           </div>
           <div class="card-body">
             <b>Position:</b> {{ job.position }}<br />
             <b>Location:</b> {{ job.location }}<br />
             <b>Minimum Salary:</b> ${{ job.salary_min }}<br />
+            <hr />
             <b>Remote:</b> {% if job.is_remote %}Yes{% else %}No{% endif %}<br />
             <b>Visa Sponsorship:</b> {% if job.visa_sponsorship %}Yes{% else %}No{% endif %}<br />
-            
-            <h6 class="mt-3">Required Skills:</h6>
+            <hr />
+            <h5 class="mt-1">Skills:</h5>
             <ul>
               {% for skill in job.skills.all %}
-                <li>{{ skill.name }}</li>
+                <li><b>{{ skill.name }}</b></li>
               {% empty %}
                 <li>No skills specified</li>
               {% endfor %}
