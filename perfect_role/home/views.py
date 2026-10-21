@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from django.db.models import Q
 from posts.models import JobPost, Bookmark, Application, Skill
 from django.contrib.gis.db.models.functions import Distance
 from django.contrib.gis.measure import D
@@ -43,7 +44,7 @@ def index(request):
         template_data['applied'] = []
         template_data['bookmarks'] = [bookmark.post.id for bookmark in Bookmark.objects.filter(user=request.user)]
         template_data['applied'] = [application.post.id for application in Application.objects.filter(user=request.user)]
-        template_data['postings'] = postings
+        template_data['postings'] = postings.exclude(pk__in=template_data['applied'])
         template_data['skills'] = Skill.objects.all()
 
     return render(request, 'home/index.html', {'template_data': template_data})

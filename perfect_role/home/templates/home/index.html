@@ -130,7 +130,7 @@
         attribution: '© OpenStreetMap'
       }).addTo(map);
 
-      {% for post in template_data.postings %}
+      {% for post in template_data.postings|slice:":3" %}
         {% if post.coordinates %}
           var lat = {{ post.coordinates.y }};
           var lng = {{ post.coordinates.x }};
@@ -199,12 +199,12 @@
 
     <!-- Listings -->
     <div class="d-flex align-items-center justify-content-between mt-5" id="listings">
-      <h2 class="mb-0"><i class="fa-solid fa-dice-d6 me-2" style="color: var(--gold)"></i>Job Listings</h2>
+      <h2 class="mb-0"><i class="fa-solid fa-dice-d6 me-2" style="color: var(--gold)"></i>Nearest Job Listings</h2>
     </div>
     <hr />
 
     <div class="row mt-3 gy-4">
-      {% for post in template_data.postings %}
+      {% for post in template_data.postings|slice:":3" %}
         {% if post.id not in template_data.applied %}
         <div class="col-md-6 col-lg-4">
           <div class="card pr-card pr-job h-100">
@@ -274,7 +274,7 @@
       <div class="col-12">
         <div class="pr-empty">
           <i class="fa-solid fa-dice-one fa-2x mb-2" style="color: var(--gold)"></i>
-          <p class="mb-0">No positions available</p>
+          <p class="mb-0">No positions found</p>
         </div>
       </div>
       {% endfor %}
