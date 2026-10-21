@@ -1,6 +1,6 @@
 from .forms import GenericUserCreationForm, CustomErrorList, ProfileForm, SocialLinkForm, PrivacyForm, WorkExperienceForm, EducationForm
 from .models import SocialLink, GenericUser, ExperienceType, WorkExperience, School, Education, SearchQuery
-from posts.models import Skill
+from posts.models import Skill, SkillRequest
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.db.models import Q
@@ -74,6 +74,7 @@ def edit_profile(request):
     template_data = {}
     template_data['title'] = 'Edit Profile'
     template_data['welcome'] = request.GET.get('welcome')
+    template_data['requested'] = request.GET.get('requested')
     if request.method == 'GET':
         template_data['form'] = ProfileForm(instance=request.user)
         template_data['link_form'] = SocialLinkForm()
@@ -150,7 +151,9 @@ def add_skill(request):
     if name:
         skill = Skill.objects.filter(name__iexact=name).first()
         if skill is None:
-            skill = Skill.objects.create(name=name)
+            if not SkillRequest.objects.filter(name__iexact=name).exists():
+                SkillRequest.objects.create(name=name, requested_by=request.user)
+            return redirect(reverse('accounts.edit_profile') + '?requested=' + name + '#skills')
         request.user.skills.add(skill)
     return redirect(reverse('accounts.edit_profile') + '#skills')
 

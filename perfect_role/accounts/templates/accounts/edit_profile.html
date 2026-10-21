@@ -25,6 +25,9 @@
           <div class="card-body">
             <h4>Skills</h4>
             <hr />
+            {% if template_data.requested %}
+            <div class="alert alert-info">"{{ template_data.requested }}" is not in our skill list yet. It has been sent to an admin for review and will be available once approved.</div>
+            {% endif %}
             <p>
               {% for skill in user.skills.all %}
               <span class="badge bg-secondary fs-6 me-1">{{ skill.name }}
@@ -40,6 +43,7 @@
               </div>
               <div class="list-group position-absolute w-100 shadow" id="skill-suggestions" style="z-index: 10"></div>
             </form>
+            <small class="text-muted">Pick a skill from the list as you type. If yours is missing, add it anyway and an admin will review it.</small>
             <script>
               const skills = [{% for skill in template_data.all_skills %}"{{ skill.name|escapejs }}",{% endfor %}];
               const input = document.getElementById('skill-input');
