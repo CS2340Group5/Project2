@@ -1,6 +1,6 @@
 from .forms import GenericUserCreationForm, CustomErrorList, ProfileForm, SocialLinkForm, PrivacyForm, WorkExperienceForm, EducationForm
 from .models import SocialLink, GenericUser, ExperienceType, WorkExperience, School, Education, SearchQuery
-from posts.models import Skill
+from posts.models import Skill, SkillRequest
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.db.models import Q
@@ -24,8 +24,11 @@ def signup(request):
     elif request.method == "POST":
         form = GenericUserCreationForm(request.POST, error_class=CustomErrorList)
         if form.is_valid():
-            form.save()
-            return redirect('accounts.login')
+            user = form.save()
+            auth_login(request, user)
+            if user.role == 'APPLICANT':
+                return redirect(reverse('accounts.edit_profile') + '?welcome=1')
+            return redirect('home.index')
         else:
             template_data['form'] = form
             return render(request, 'accounts/signup.html', {'template_data': template_data})
@@ -70,6 +73,8 @@ def profile(request, id=None):
 def edit_profile(request):
     template_data = {}
     template_data['title'] = 'Edit Profile'
+    template_data['welcome'] = request.GET.get('welcome')
+    template_data['requested'] = request.GET.get('requested')
     if request.method == 'GET':
         template_data['form'] = ProfileForm(instance=request.user)
         template_data['link_form'] = SocialLinkForm()
@@ -146,7 +151,9 @@ def add_skill(request):
     if name:
         skill = Skill.objects.filter(name__iexact=name).first()
         if skill is None:
-            skill = Skill.objects.create(name=name)
+            if not SkillRequest.objects.filter(name__iexact=name).exists():
+                SkillRequest.objects.create(name=name, requested_by=request.user)
+            return redirect(reverse('accounts.edit_profile') + '?requested=' + name + '#skills')
         request.user.skills.add(skill)
     return redirect(reverse('accounts.edit_profile') + '#skills')
 
