@@ -16,20 +16,16 @@
         <div class="card-text">
           <form method="GET">
             <div class="row">
-              <div class="col-5">
-                <div class="input-group col-6">
-                  <div class="input-group-text" style="background-color: #75c1ff"><i class="fa-solid fa-magnifying-glass"></i></div>
-                  <input type="text" class="form-control" name="search" placeholder="Experience">
-                  <button class="input-group-text" type="button" data-bs-toggle="collapse" data-bs-target="#filterPanel" style="background-color: #FFFFFF">  
-                    <i class="fa-solid fa-filter"></i>
-                  </button>
-                </div>
-              </div>
-              <div class="col-2">
-                <div class="input-group col-6">
+              <div class="col-4">
+                <div class="input-group">
                   <div class="input-group-text" style="background-color: #75c1ff"><i class="fa-solid fa-location-dot"></i></div>
                   <input type="text" class="form-control" name="zip" placeholder="Zip Code / City">
                 </div>
+              </div>
+              <div class="col-auto">
+                <button class="btn" type="button" data-bs-toggle="collapse" data-bs-target="#filterPanel" style="background-color: #FFFFFF; border: 1px solid #ced4da;">  
+                  <i class="fa-solid fa-filter"></i> Filters
+                </button>
               </div>
               <div class="col-auto">
                 <button class="btn bg-dark text-white" type="submit">Search</button>
