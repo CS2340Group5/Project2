@@ -9,9 +9,9 @@
             <div class="d-flex justify-content-between align-items-start">
               <h2>{{ template_data.profile_user.username }}</h2>
               {% if user.role == "RECRUITER" and not template_data.is_owner %}
-              <button type="button" class="btn" style="background-color: #FFFFFF"
+              <button type="button" class="btn-pr btn-pr-sm"
                 data-bs-toggle="modal" data-bs-target="#messageuser" title="Message">
-                <i class="fa-solid fa-envelope"></i>
+                <i class="fa-solid fa-envelope ms-1 me-1"></i>
               </button>
               {% endif %}
             </div>
@@ -20,7 +20,7 @@
             {% if template_data.is_owner %}
             <p><b>Email:</b> {{ template_data.profile_user.email }} <span class="text-muted">(Only you can see this)</span></p>
             {% endif %}
-            {% if template_data.profile_user.location and (template_data.is_owner or template_data.profile_user.show_location) %}
+            {% if template_data.profile_user.location and template_data.profile_user.show_location %}
             <p><b>Location:</b> {{ template_data.profile_user.location }}</p>
             {% if template_data.is_owner and template_data.profile_user.commute_radius %}
             <p><b>Commute radius:</b> {{ template_data.profile_user.commute_radius }} miles</p>
