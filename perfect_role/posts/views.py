@@ -15,7 +15,7 @@ import json
 
 # view jobs
 def index(request):
-    postings = JobPost.objects.all()
+    postings = JobPost.objects.exclude(recruiter__is_active=False)
     search = request.GET.get('search')
     skills = request.GET.getlist('skills')
     position = request.GET.get('position')
@@ -179,7 +179,7 @@ def editjob(request, id):
 @login_required
 def recommended(request):
     my_skills = request.user.skills.all()
-    postings = JobPost.objects.filter(skills__in=my_skills).annotate(
+    postings = JobPost.objects.exclude(recruiter__is_active=False).filter(skills__in=my_skills).annotate(
         matches=Count('skills')).order_by('-matches')
     template_data = {'title': 'Recommended Jobs'}
     template_data['postings'] = postings
@@ -233,7 +233,7 @@ def candidate_recommendations(request, id):
     if request.user != post.recruiter:
         return redirect('home.index')
     job_skills = post.skills.all()
-    candidates = GenericUser.objects.filter(role='APPLICANT', is_public=True, skills__in=job_skills).annotate(
+    candidates = GenericUser.objects.filter(role='APPLICANT', is_public=True, is_active=True, skills__in=job_skills).annotate(
         matches=Count('skills')).order_by('-matches')
     template_data = {'title': 'Recommended Candidates'}
     template_data['post'] = post

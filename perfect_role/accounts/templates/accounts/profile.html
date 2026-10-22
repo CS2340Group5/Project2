@@ -8,12 +8,20 @@
           <div class="card-body">
             <div class="d-flex justify-content-between align-items-start">
               <h2>{{ template_data.profile_user.username }}</h2>
+              <div class="d-flex gap-2">
               {% if user.role == "RECRUITER" and not template_data.is_owner %}
               <button type="button" class="btn-pr btn-pr-sm"
                 data-bs-toggle="modal" data-bs-target="#messageuser" title="Message">
                 <i class="fa-solid fa-envelope ms-1 me-1"></i>
               </button>
               {% endif %}
+              {% if not template_data.is_owner and user.role != "ADMIN" and not user.is_superuser %}
+              <button type="button" class="btn-pr-ink btn-pr-sm"
+                data-bs-toggle="modal" data-bs-target="#reportuser{{ template_data.profile_user.id }}" title="Report user" aria-label="Report user">
+                <i class="fa-solid fa-flag ms-1 me-1"></i>
+              </button>
+              {% endif %}
+              </div>
             </div>
             {% if template_data.is_owner or template_data.profile_user.is_public %}
             <p class="text-muted">{{ template_data.profile_user.headline }}</p>
@@ -108,5 +116,10 @@
       </div>
     </div>
   </div>
+{% endif %}
+
+{% if not template_data.is_owner and user.role != "ADMIN" and not user.is_superuser %}
+  {% url 'reports.report_user' id=template_data.profile_user.id as report_url %}
+  {% include 'reports/report_modal.html' with modal_prefix="reportuser" target_id=template_data.profile_user.id action_url=report_url target_kind="user" target_label=template_data.profile_user.username %}
 {% endif %}
 {% endblock content %}

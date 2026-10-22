@@ -17,6 +17,11 @@
             <div class="card pr-card pr-job p-3 h-100" style="border-left-color: var(--gold) !important;">
               <div class="card-body">
                 <div class="card-title">
+                  {% if user.is_authenticated and user.role != "ADMIN" and not user.is_superuser and post.recruiter_id != user.id %}
+                  <button type="button" class="pr-icon-btn float-end border-0 px-1" style="background-color: #FFFFFF" data-bs-toggle="modal" data-bs-target="#reportpost{{ post.id }}" title="Report this posting" aria-label="Report this posting">
+                    <i class="fa-solid fa-flag" style="color: var(--red)"></i>
+                  </button>
+                  {% endif %}
                   <h5>{{ post.name }}</h5>
                   <span class="badge bg-success">{{ post.matches }} matching skill{{ post.matches|pluralize }}</span>
                   <hr />
@@ -36,6 +41,10 @@
               </div>
             </div>
           </div>
+          {% if user.is_authenticated and user.role != "ADMIN" and not user.is_superuser and post.recruiter_id != user.id %}
+          {% url 'reports.report_post' id=post.id as report_url %}
+          {% include 'reports/report_modal.html' with modal_prefix="reportpost" target_id=post.id action_url=report_url target_kind="job posting" target_label=post.name %}
+          {% endif %}
           {% endfor %}
         </div>
       </div>

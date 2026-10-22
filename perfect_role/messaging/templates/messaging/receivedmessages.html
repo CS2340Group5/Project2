@@ -20,9 +20,20 @@
           <div id="msg{{ msg.id }}" class="collapse">
             <div class="card-body">
               {{ msg.message_text|linebreaksbr }}
+              {% if msg.recruiter.role != "ADMIN" and not msg.recruiter.is_superuser %}
+              <div class="text-end mt-2">
+                <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#reportmsg{{ msg.id }}">
+                  <i class="fa-solid fa-flag me-1"></i> Report {{ msg.recruiter.username }}
+                </button>
+              </div>
+              {% endif %}
             </div>
           </div>
         </div>
+        {% if msg.recruiter.role != "ADMIN" and not msg.recruiter.is_superuser %}
+        {% url 'reports.report_user' id=msg.recruiter.id as report_url %}
+        {% include 'reports/report_modal.html' with modal_prefix="reportmsg" target_id=msg.id action_url=report_url target_kind="user" target_label=msg.recruiter.username %}
+        {% endif %}
         {% empty %}
         <div class="alert alert-info">You have no messages.</div>
         {% endfor %}

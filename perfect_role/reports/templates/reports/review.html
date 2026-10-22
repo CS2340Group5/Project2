@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="p-3 mt-4">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-12">
+        <div class="card pr-card shadow p-3 mb-4">
+          <div class="card-body">
+            <h2><i class="fa-solid fa-flag me-2" style="color: var(--red)"></i>{{ template_data.title }}</h2>
+            <p class="text-muted mb-0">Investigate reports submitted about users and job postings before taking action.</p>
+            <hr />
+
+            <ul class="nav nav-pills mb-3 flex-wrap gap-1">
+              {% for value, label, count in template_data.status_tabs %}
+              <li class="nav-item">
+                <a class="nav-link {% if template_data.status == value %}active bg-dark{% else %}text-dark{% endif %}"
+                   href="?status={{ value }}{% if template_data.type %}&type={{ template_data.type }}{% endif %}{% if template_data.reason %}&reason={{ template_data.reason }}{% endif %}{% if template_data.search %}&search={{ template_data.search|urlencode }}{% endif %}">
+                  {{ label }} <span class="badge {% if template_data.status == value %}bg-light text-dark{% else %}bg-dark{% endif %} ms-1">{{ count }}</span>
+                </a>
+              </li>
+              {% endfor %}
+            </ul>
+
+            <form method="GET" class="row g-2 align-items-end mb-3">
+              <input type="hidden" name="status" value="{{ template_data.status }}">
+              <div class="col-12 col-md-4">
+                <input type="text" class="form-control" name="search" value="{{ template_data.search }}" placeholder="Search target, details or username">
+              </div>
+              <div class="col-6 col-md-3">
+                <select class="form-select" name="type">
+                  <option value="">All targets</option>
+                  {% for value, label in template_data.type_choices %}
+                  <option value="{{ value }}" {% if template_data.type == value %}selected{% endif %}>{{ label }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="col-6 col-md-3">
+                <select class="form-select" name="reason">
+                  <option value="">All reasons</option>
+                  {% for value, label in template_data.reason_choices %}
+                  <option value="{{ value }}" {% if template_data.reason == value %}selected{% endif %}>{{ label }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="col-auto">
+                <button type="submit" class="btn-pr btn-pr-sm"><i class="fa-solid fa-filter me-1"></i> Filter</button>
+                <a href="?status={{ template_data.status }}" class="btn-pr-ink btn-pr-sm text-decoration-none">Clear</a>
+              </div>
+            </form>
+
+            <div class="table-responsive">
+              <table class="table table-hover align-middle mt-3">
+                <thead class="table-dark">
+                  <tr>
+                    <th>Submitted</th>
+                    <th>Target</th>
+                    <th>Reason</th>
+                    <th>Reported By</th>
+                    <th>Status</th>
+                    <th class="text-end">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for report in template_data.reports %}
+                  <tr>
+                    <td class="text-nowrap">{{ report.created_at|date:"M j, Y g:i A" }}</td>
+                    <td>
+                      <span class="badge {% if report.target_type == 'POST' %}bg-primary{% else %}bg-dark{% endif %}">{{ report.get_target_type_display }}</span>
+                      <span class="fw-bold ms-1">{{ report.target_summary }}</span>
+                      {% if report.target_type == 'POST' and not report.reported_post %}
+                      <span class="badge bg-secondary ms-1">Removed</span>
+                      {% elif report.reported_user and not report.reported_user.is_active %}
+                      <span class="badge bg-secondary ms-1">Deactivated</span>
+                      {% endif %}
+                      {% if report.open_on_target > 1 %}
+                      <span class="badge bg-danger ms-1" title="Open reports about this target">{{ report.open_on_target }} open reports</span>
+                      {% endif %}
+                    </td>
+                    <td>{{ report.get_reason_display }}</td>
+                    <td>{{ report.reporter.username|default:"Deleted user" }}</td>
+                    <td>
+                      {% include 'reports/status_badge.html' with status=report.status label=report.get_status_display %}
+                      {% if report.action_taken != 'NONE' %}<div class="small text-muted">{{ report.get_action_taken_display }}</div>{% endif %}
+                    </td>
+                    <td class="text-end">
+                      <a href="{% url 'reports.detail' id=report.id %}" class="btn btn-sm btn-dark">
+                        {% if report.is_open %}Investigate{% else %}View{% endif %}
+                      </a>
+                    </td>
+                  </tr>
+                  {% empty %}
+                  <tr>
+                    <td colspan="6" class="text-center text-muted py-4">No reports match these filters.</td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}

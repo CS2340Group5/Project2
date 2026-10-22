@@ -9,7 +9,7 @@ def index(request):
     template_data['title'] = 'Perfect Role'
     
     if request.user.is_authenticated:
-        postings = JobPost.objects.all()
+        postings = JobPost.objects.exclude(recruiter__is_active=False)
         search = request.GET.get('search')
         skills = request.GET.getlist('skills')
         position = request.GET.get('position')

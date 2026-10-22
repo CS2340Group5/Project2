@@ -18,6 +18,11 @@
                             <h4><i class="fa-solid fa-minus" style="color: #ff3556"></i></h4>
                         </a>
                     {% endif %}
+                    {% if user.is_authenticated and user.role != "ADMIN" and not user.is_superuser and post.recruiter_id != user.id %}
+                    <button type="button" class="pr-icon-btn float-end me-2 mt-2 border-0 px-1" style="background-color: #FFFFFF" data-bs-toggle="modal" data-bs-target="#reportpost{{ post.id }}" title="Report this posting" aria-label="Report this posting">
+                      <i class="fa-solid fa-flag" style="color: var(--red)"></i>
+                    </button>
+                    {% endif %}
                     <h5> {{ post.name }} </h5>
                     <b>Position: </b>{{ post.position }}<br />
                     <b>Salary: </b><span class="pr-salary">${{post.salary_min}}</span><br />
@@ -66,6 +71,10 @@
                 </div>
               </div>
             </div>
+            {% if user.is_authenticated and user.role != "ADMIN" and not user.is_superuser and post.recruiter_id != user.id %}
+            {% url 'reports.report_post' id=post.id as report_url %}
+            {% include 'reports/report_modal.html' with modal_prefix="reportpost" target_id=post.id action_url=report_url target_kind="job posting" target_label=post.name %}
+            {% endif %}
             {% endif %}
           {% empty %}
           <p>No saved listings. Click <a href="{% url 'posts.index' %}">here</a> to browse.</p>

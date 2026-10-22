@@ -43,7 +43,8 @@ INSTALLED_APPS = [
     'accounts',
     'posts',
     'exports',
-    'messaging'
+    'messaging',
+    'reports',
 ]
 
 MIDDLEWARE = [
@@ -68,6 +69,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'reports.context_processors.reports',
             ],
         },
     },

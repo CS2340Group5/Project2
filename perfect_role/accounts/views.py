@@ -164,7 +164,7 @@ def remove_skill(request, id):
     return redirect(reverse('accounts.edit_profile') + '#skills')
 
 def filter_candidates(skills, kinds, search=None):
-    candidates = GenericUser.objects.filter(role='APPLICANT', is_public=True).exclude(is_superuser=True)
+    candidates = GenericUser.objects.filter(role='APPLICANT', is_public=True, is_active=True).exclude(is_superuser=True)
     if skills:
         candidates = candidates.filter(skills__name__in=skills).distinct()
     if kinds:
