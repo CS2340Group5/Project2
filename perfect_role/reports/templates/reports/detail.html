@@ -1,241 +1,80 @@
 {% extends 'base.html' %}
 {% block content %}
-{% with report=template_data.report post=template_data.post target=template_data.target_user %}
+{% with report=template_data.report user=template_data.user post=template_data.post %}
 <div class="p-3 mt-4">
   <div class="container">
-    <a href="{% url 'reports.review' %}" class="d-inline-block mb-3"><i class="fa-solid fa-arrow-left me-1"></i> Back to all reports</a>
-    <div class="row g-4">
+    <div class="row">
       <div class="col-lg-8">
-
-        <div class="card pr-card shadow p-3">
+        <div class="card pr-card shadow p-3 mb-4">
           <div class="card-body">
-            <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
-              <div>
-                <div class="pr-modal-tag mb-1"><i class="fa-solid fa-flag me-1"></i> Report #{{ report.id }} &middot; {{ report.get_target_type_display }}</div>
-                <h2 class="mb-0">{{ report.target_summary }}</h2>
-              </div>
-              <div class="text-end">
-                {% include 'reports/status_badge.html' with status=report.status label=report.get_status_display %}
-                {% if report.action_taken != 'NONE' %}<div class="small text-muted mt-1">{{ report.get_action_taken_display }}</div>{% endif %}
-              </div>
-            </div>
-            <hr />
+            <a href="{% url 'reports.review' %}">&larr; Back to reports</a>
+            <h2 class="mt-2">{{ report.target_summary }}
+              {% if report.status == 'PENDING' %}<span class="badge bg-warning text-dark fs-6">Pending</span>{% else %}<span class="badge bg-success fs-6">Resolved</span>{% endif %}
+            </h2>
             <p class="mb-1"><b>Reason:</b> {{ report.get_reason_display }}</p>
-            <p class="mb-1"><b>Submitted:</b> {{ report.created_at|date:"M j, Y g:i A" }}</p>
-            <p class="mb-1"><b>Reported by:</b>
-              {% if report.reporter %}
-              <a href="{% url 'accounts.profile_view' id=report.reporter.id %}">{{ report.reporter.username }}</a>
-              <span class="text-muted">({{ report.reporter.get_role_display }})</span>
-              {% else %}
-              <span class="text-muted">Deleted user</span>
-              {% endif %}
-            </p>
-            {% if template_data.reporter_history %}
-            <p class="small text-muted mb-1">
-              This user has submitted {{ template_data.reporter_history.total }} report{{ template_data.reporter_history.total|pluralize }}:
-              {{ template_data.reporter_history.actioned }} led to action, {{ template_data.reporter_history.dismissed }} dismissed.
-            </p>
-            {% endif %}
-            {% if report.reviewed_by %}
-            <p class="mb-1"><b>Reviewed by:</b> {{ report.reviewed_by.username }}{% if report.reviewed_at %} on {{ report.reviewed_at|date:"M j, Y g:i A" }}{% endif %}</p>
-            {% endif %}
-            <p class="mt-3 mb-1"><b>Details from reporter:</b></p>
-            <div class="p-3 rounded" style="background: rgba(23,20,31,.06); border: 2px dashed rgba(23,20,31,.3)">
-              {% if report.details %}{{ report.details|linebreaksbr }}{% else %}<span class="text-muted">No details provided.</span>{% endif %}
-            </div>
+            <p class="mb-1"><b>Reported by:</b> {{ report.reporter.username|default:"Deleted user" }} on {{ report.created_at|date:"M j, Y g:i A" }}</p>
+            {% if report.action %}<p class="mb-1"><b>Action taken:</b> {{ report.action }}</p>{% endif %}
+            <p class="mb-1"><b>Details:</b></p>
+            <p class="border rounded p-2">{% if report.details %}{{ report.details|linebreaksbr }}{% else %}<span class="text-muted">No details provided.</span>{% endif %}</p>
           </div>
         </div>
 
-        {% if report.target_type == 'POST' %}
-        <div class="card pr-card shadow p-3 mt-4">
+        {% if post %}
+        <div class="card pr-card shadow p-3 mb-4">
           <div class="card-body">
             <h4><i class="fa-solid fa-briefcase me-2" style="color: var(--red)"></i>Reported Job Posting</h4>
-            <hr />
-            {% if post %}
-            <h5 class="pr-job-title">{{ post.name }}</h5>
-            <p class="mb-1"><b>Position:</b> {{ post.position }}</p>
-            <p class="mb-1"><b>Minimum Salary:</b> ${{ post.salary_min }}</p>
-            <p class="mb-1"><b>Location:</b> {{ post.location }}</p>
-            <p class="mb-1"><b>Skills:</b> {{ post.skills_toString|default:"None listed" }}</p>
-            <p class="mb-1"><b>Remote:</b> {% if post.is_remote %}Yes{% else %}No{% endif %}
-              &middot; <b>Visa Sponsorship:</b> {% if post.visa_sponsorship %}Yes{% else %}No{% endif %}</p>
-            <p class="mb-1"><b>Applications received:</b> {{ template_data.application_count }}</p>
-            {% else %}
-            <p class="text-muted mb-0">This job posting has been removed.</p>
-            {% endif %}
+            <h5>{{ post.name }}</h5>
+            <p class="mb-1"><b>Position:</b> {{ post.position }} &middot; <b>Salary:</b> ${{ post.salary_min }} &middot; <b>Location:</b> {{ post.location }}</p>
+            <p class="mb-1"><b>Skills:</b> {{ post.skills_toString }}</p>
+            <p class="mb-0"><b>Posted by:</b> {% if post.recruiter %}<a href="{% url 'accounts.profile_view' id=post.recruiter.id %}">{{ post.recruiter.username }}</a>{% else %}unknown{% endif %}</p>
           </div>
         </div>
+        {% elif report.action == "Job posting removed" %}
+        <div class="alert alert-secondary">The reported job posting has been removed.</div>
         {% endif %}
 
-        <div class="card pr-card shadow p-3 mt-4">
+        {% if user %}
+        <div class="card pr-card shadow p-3 mb-4">
           <div class="card-body">
-            <h4><i class="fa-solid fa-user me-2" style="color: var(--red)"></i>{% if report.target_type == 'POST' %}Posted By{% else %}Reported User{% endif %}</h4>
-            <hr />
-            {% if target %}
-            <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
-              <h5 class="mb-1"><a href="{% url 'accounts.profile_view' id=target.id %}">{{ target.username }}</a></h5>
-              <div>
-                <span class="badge bg-dark">{{ target.get_role_display }}</span>
-                {% if target.is_active %}<span class="badge bg-success">Active</span>{% else %}<span class="badge bg-secondary">Deactivated</span>{% endif %}
-                {% if not target.is_public %}<span class="badge bg-warning text-dark">Private profile</span>{% endif %}
-              </div>
-            </div>
-            {% if target.first_name or target.last_name %}<p class="mb-1"><b>Name:</b> {{ target.first_name }} {{ target.last_name }}</p>{% endif %}
-            <p class="mb-1"><b>Email:</b> {{ target.email|default:"Not provided" }}</p>
-            <p class="mb-1"><b>Joined:</b> {{ target.date_joined|date:"M j, Y" }}</p>
-            {% if target.headline %}<p class="mb-1"><b>Headline:</b> {{ target.headline }}</p>{% endif %}
-            {% if target.location %}<p class="mb-1"><b>Location:</b> {{ target.location }}</p>{% endif %}
-            {% if target.skills.exists %}
-            <p class="mb-1"><b>Skills:</b>
-              {% for skill in target.skills.all %}<span class="badge bg-secondary me-1">{{ skill.name }}</span>{% endfor %}
-            </p>
-            {% endif %}
-            {% if template_data.user_experiences %}
-            <p class="mb-1 mt-2"><b>Work experience:</b></p>
-            <ul class="mb-1">
-              {% for exp in template_data.user_experiences %}
-              <li><span class="badge bg-secondary">{{ exp.kind }}</span> {{ exp.company }}{% if exp.description %}: {{ exp.description }}{% endif %}</li>
-              {% endfor %}
-            </ul>
-            {% endif %}
-            {% if template_data.user_educations %}
-            <p class="mb-1 mt-2"><b>Education:</b></p>
-            <ul class="mb-1">
-              {% for edu in template_data.user_educations %}
-              <li><span class="badge bg-secondary">{{ edu.school }}</span> {{ edu.degree }}{% if edu.description %}: {{ edu.description }}{% endif %}</li>
-              {% endfor %}
-            </ul>
-            {% endif %}
-            {% if template_data.user_links %}
-            <p class="mb-1 mt-2"><b>Links:</b>
-              {% for link in template_data.user_links %}
-              <a href="{{ link.url }}" target="_blank" rel="noopener noreferrer">{{ link.title }}</a>{% if not forloop.last %}, {% endif %}
-              {% endfor %}
-            </p>
-            {% endif %}
-            {% if template_data.user_posts %}
-            <p class="mb-1 mt-2"><b>Job postings by this user:</b></p>
+            <h4><i class="fa-solid fa-user me-2" style="color: var(--red)"></i>{% if post %}Posted By{% else %}Reported User{% endif %}</h4>
+            <h5><a href="{% url 'accounts.profile_view' id=user.id %}">{{ user.username }}</a>
+              <span class="badge bg-secondary">{{ user.role }}</span>
+              {% if user.is_active %}<span class="badge bg-success">Active</span>{% else %}<span class="badge bg-dark">Deactivated</span>{% endif %}
+            </h5>
+            {% if user.headline %}<p class="mb-1"><b>Headline:</b> {{ user.headline }}</p>{% endif %}
+            {% if user.email %}<p class="mb-1"><b>Email:</b> {{ user.email }}</p>{% endif %}
+            {% if template_data.other_reports %}
+            <p class="mb-1 mt-2"><b>Other reports about this user:</b></p>
             <ul class="mb-0">
-              {% for job in template_data.user_posts %}
-              <li>{{ job.name }} &middot; {{ job.position }} &middot; {{ job.location }}</li>
+              {% for other in template_data.other_reports %}
+              <li><a href="{% url 'reports.detail' id=other.id %}">{{ other.target_summary }}</a>: {{ other.get_reason_display }} ({{ other.get_status_display }})</li>
               {% endfor %}
             </ul>
             {% endif %}
-            {% else %}
-            <p class="text-muted mb-0">This account no longer exists.</p>
-            {% endif %}
-          </div>
-        </div>
-
-        {% if template_data.conversation %}
-        <div class="card pr-card shadow p-3 mt-4">
-          <div class="card-body">
-            <h4><i class="fa-solid fa-envelope me-2" style="color: var(--red)"></i>Messages Between Reporter and {{ target.username }}</h4>
-            <hr />
-            {% for msg in template_data.conversation %}
-            <div class="mb-3">
-              <div class="d-flex justify-content-between small text-muted">
-                <span><b>{{ msg.recruiter.username }}</b> &rarr; {{ msg.applicant.username }}</span>
-                <span>{{ msg.date|date:"M j, Y g:i A" }}</span>
-              </div>
-              <div class="p-2 rounded" style="background: #fff; border: 1.5px solid rgba(23,20,31,.25)">{{ msg.message_text|linebreaksbr }}</div>
-            </div>
-            {% endfor %}
           </div>
         </div>
         {% endif %}
-
-        <div class="card pr-card shadow p-3 mt-4">
-          <div class="card-body">
-            <h4><i class="fa-solid fa-clock-rotate-left me-2" style="color: var(--red)"></i>Other Reports Involving This {% if report.target_type == 'POST' %}Posting or Its Recruiter{% else %}User{% endif %}</h4>
-            <hr />
-            <div class="table-responsive">
-              <table class="table table-sm align-middle mb-0">
-                <thead>
-                  <tr><th>Submitted</th><th>Target</th><th>Reason</th><th>Reported By</th><th>Status</th><th></th></tr>
-                </thead>
-                <tbody>
-                  {% for other in template_data.related_reports %}
-                  <tr>
-                    <td class="text-nowrap">{{ other.created_at|date:"M j, Y" }}</td>
-                    <td><span class="badge bg-dark">{{ other.get_target_type_display }}</span> {{ other.target_summary }}</td>
-                    <td>{{ other.get_reason_display }}</td>
-                    <td>{{ other.reporter.username|default:"Deleted user" }}</td>
-                    <td>{% include 'reports/status_badge.html' with status=other.status label=other.get_status_display %}</td>
-                    <td class="text-end"><a href="{% url 'reports.detail' id=other.id %}">View</a></td>
-                  </tr>
-                  {% empty %}
-                  <tr><td colspan="6" class="text-muted text-center py-3">No other reports.</td></tr>
-                  {% endfor %}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-
       </div>
 
       <div class="col-lg-4">
-        <div class="card pr-card shadow p-3 sticky-lg-top" style="top: 1rem;">
+        <div class="card pr-card shadow p-3 mb-4">
           <div class="card-body">
             <h4><i class="fa-solid fa-gavel me-2" style="color: var(--red)"></i>Take Action</h4>
-            <hr />
-            <form method="POST" class="pr-form">
+            <form method="POST">
               {% csrf_token %}
-              <label for="admin_notes">Investigation notes</label>
-              <textarea class="form-control" name="admin_notes" id="admin_notes" rows="5" maxlength="2000"
-                placeholder="Record what you found while investigating...">{{ report.admin_notes }}</textarea>
-              <button type="submit" name="action" value="save_notes" class="btn btn-sm btn-outline-dark mt-2 w-100">Save Notes</button>
-
-              {% if report.is_open %}
-              <hr />
               {% if report.status == 'PENDING' %}
-              <button type="submit" name="action" value="investigate" class="btn btn-info w-100 mb-2">
-                <i class="fa-solid fa-magnifying-glass me-1"></i> Mark as Under Investigation
-              </button>
-              {% endif %}
-              <button type="submit" name="action" value="dismiss" class="btn btn-outline-secondary w-100 mb-2"
-                onclick="return confirm('Dismiss this report without taking action?');">
-                <i class="fa-solid fa-xmark me-1"></i> Dismiss (No Violation)
-              </button>
-
-              {% if target %}
-              <button type="button" class="btn btn-warning w-100 mb-2" data-bs-toggle="collapse" data-bs-target="#warnPanel">
-                <i class="fa-solid fa-triangle-exclamation me-1"></i> Warn {{ target.username }}
-              </button>
-              <div class="collapse mb-2" id="warnPanel">
-                <label for="warning_message">Warning message</label>
-                <textarea class="form-control" name="warning_message" id="warning_message" rows="5" maxlength="500">{{ template_data.default_warning }}</textarea>
-                <button type="submit" name="action" value="warn" class="btn btn-warning btn-sm w-100 mt-2">Send Warning &amp; Resolve</button>
-              </div>
-              {% endif %}
-
+              <button type="submit" name="action" value="dismiss" class="btn btn-outline-secondary w-100 mb-2">Dismiss report</button>
               {% if post %}
-              <button type="submit" name="action" value="remove_post" class="btn btn-danger w-100 mb-2"
-                onclick="return confirm('Permanently remove this job posting? This cannot be undone.');">
-                <i class="fa-solid fa-trash me-1"></i> Remove Job Posting
-              </button>
+              <button type="submit" name="action" value="remove_post" class="btn btn-danger w-100 mb-2">Remove job posting</button>
               {% endif %}
-
-              {% if template_data.can_deactivate %}
-              <button type="submit" name="action" value="deactivate" class="btn btn-dark w-100 mb-2"
-                onclick="return confirm('Deactivate {{ target.username|escapejs }}? They will no longer be able to log in.');">
-                <i class="fa-solid fa-user-slash me-1"></i> Deactivate {{ target.username }}
-              </button>
+              {% if user and user.is_active and not user.is_superuser %}
+              <button type="submit" name="action" value="deactivate" class="btn btn-dark w-100 mb-2">Deactivate user</button>
               {% endif %}
               {% else %}
-              <hr />
-              <p class="small text-muted">This report is closed{% if report.action_taken != 'NONE' %} ({{ report.get_action_taken_display|lower }}){% endif %}.</p>
-              <button type="submit" name="action" value="reopen" class="btn btn-outline-dark w-100 mb-2">
-                <i class="fa-solid fa-rotate-left me-1"></i> Reopen Report
-              </button>
+              <p class="small text-muted">This report is resolved.</p>
               {% endif %}
-
-              {% if target and not target.is_active %}
-              <button type="submit" name="action" value="reactivate" class="btn btn-outline-success w-100 mb-2"
-                onclick="return confirm('Reactivate {{ target.username|escapejs }}?');">
-                <i class="fa-solid fa-user-check me-1"></i> Reactivate {{ target.username }}
-              </button>
+              {% if user and not user.is_active %}
+              <button type="submit" name="action" value="reactivate" class="btn btn-outline-success w-100 mb-2">Reactivate user</button>
               {% endif %}
             </form>
           </div>

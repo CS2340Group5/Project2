@@ -42,7 +42,11 @@ def login(request):
     elif request.method == 'POST':
         user = authenticate(request, username = request.POST['username'], password = request.POST['password'])
         if user is None:
-            template_data['error'] = 'The username or password is incorrect.'
+            inactive = GenericUser.objects.filter(username=request.POST['username'], is_active=False).first()
+            if inactive and inactive.check_password(request.POST['password']):
+                template_data['error'] = 'Your account has been deactivated. If you think this is a mistake, please contact the administrators.'
+            else:
+                template_data['error'] = 'The username or password is incorrect.'
             return render(request, 'accounts/login.html',
                 {'template_data': template_data})
         else:

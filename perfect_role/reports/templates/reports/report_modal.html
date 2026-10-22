@@ -1,22 +1,22 @@
-<div id="{{ modal_prefix }}{{ target_id }}" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="{{ modal_prefix }}{{ target_id }}-title" aria-hidden="true">
+<div id="{{ modal_prefix }}{{ target_id }}" class="modal fade" tabindex="-1" role="dialog">
   <div class="modal-dialog">
     <div class="modal-content">
       <form method="POST" action="{{ action_url }}" class="pr-form">
         {% csrf_token %}
         <div class="modal-body p-4">
-          <div class="pr-modal-tag mb-1"><i class="fa-solid fa-flag me-1"></i> Report {{ target_kind }}</div>
-          <h4 id="{{ modal_prefix }}{{ target_id }}-title">{{ target_label }}</h4>
+          <h4><i class="fa-solid fa-flag me-1"></i> Report {{ target_kind }}: {{ target_label }}</h4>
           <p class="text-muted small mb-3">Reports are confidential. An administrator will investigate before any action is taken.</p>
-          <label for="{{ modal_prefix }}{{ target_id }}-reason">Reason</label>
-          <select class="form-select" name="reason" id="{{ modal_prefix }}{{ target_id }}-reason" required>
+          <label>Reason</label>
+          <select class="form-select" name="reason" required>
             <option value="" selected disabled>Choose a reason...</option>
-            {% for value, label in report_reasons %}
-            <option value="{{ value }}">{{ label }}</option>
-            {% endfor %}
+            <option value="INAPPROPRIATE">Inappropriate content</option>
+            <option value="MISLEADING">Misleading or fraudulent</option>
+            <option value="ABUSIVE">Abusive or harassing behavior</option>
+            <option value="SPAM">Spam</option>
+            <option value="OTHER">Other</option>
           </select>
-          <label for="{{ modal_prefix }}{{ target_id }}-details" class="mt-3">Details</label>
-          <textarea class="form-control" name="details" id="{{ modal_prefix }}{{ target_id }}-details" rows="4" maxlength="1000"
-            placeholder="Tell us what is inappropriate, misleading, or abusive..."></textarea>
+          <label class="mt-3">Details</label>
+          <textarea class="form-control" name="details" rows="4" maxlength="1000" placeholder="Tell us what is inappropriate, misleading, or abusive..."></textarea>
         </div>
         <div class="modal-footer">
           <button type="submit" class="btn-pr"><i class="fa-solid fa-flag me-1"></i> Submit Report</button>
